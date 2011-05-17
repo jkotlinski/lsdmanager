@@ -1,0 +1,19 @@
+0.1a: initial
+
+0.2a
+
+ * added: export work memory to 32kByte v2 .sav
+
+0.3a
+
+ * made file mem usage indicator more understandable
+ * fixed bug with "Add .lsdsng..." button
+ * replaced showOpenDialog with showSaveDialog where appropriate
+
+0.4a
+
+ * fixed bug when adding .lsdsng 's...
+
+2006-12-19: v0.5
+
+ * bugfix in .lsdsng export
