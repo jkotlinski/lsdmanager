@@ -345,6 +345,9 @@ public class LSDSavFile
     public boolean export_song_to_file(int a_slot, String a_file_path)
     {
         RandomAccessFile m_file = null;
+        /* TODO: Got bug report that this function created "an enormous" .lsdsng file!
+         * Should add more safety checks...
+         */
         try
         {
             m_file = new RandomAccessFile(a_file_path, "rw");
