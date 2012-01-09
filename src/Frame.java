@@ -192,6 +192,11 @@ public class Frame extends JFrame {
 
     public void exportLsdSngButton_actionPerformed(ActionEvent e)
     {
+        int l_slot = jSongSlotList.getSelectedIndex();
+        if (l_slot < 0 || l_slot > 0x1f) {
+            return;
+        }
+
         JFileChooser l_file_chooser = new JFileChooser( m_latest_path );
         l_file_chooser.setFileFilter(new LsdSngFilter());
         l_file_chooser.setDialogTitle("Export selected slot to compressed .lsdsng file");
@@ -205,7 +210,6 @@ public class Frame extends JFrame {
                 l_file_name += ".lsdsng";
             }
 
-            int l_slot = jSongSlotList.getSelectedIndex();
             m_file.export_song_to_file(l_slot, l_file_name);
         }
     }

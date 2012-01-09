@@ -76,7 +76,7 @@ public class LSDSavFile
         }
         else
         {
-            return 0xbf;
+            return 0xbf;  // Almost 0xc0, except first block for FAT.
         }
     }
 
