@@ -339,7 +339,7 @@ public class LSDSavFile
         return l_version;
     }
 
-    public boolean export_song_to_file(int a_slot, String a_file_path)
+    public void export_song_to_file(int a_slot, String a_file_path)
     {
         if (a_slot < 0 || a_slot > 0x1f) {
             return;
@@ -382,9 +382,7 @@ public class LSDSavFile
         catch (Exception e)
         {
             e.printStackTrace();
-            return false;
         }
-        return true;
     }
 
     public boolean add_song_from_file(String a_file_path)
