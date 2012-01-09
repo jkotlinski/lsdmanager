@@ -341,6 +341,9 @@ public class LSDSavFile
 
     public boolean export_song_to_file(int a_slot, String a_file_path)
     {
+        if (a_slot < 0 || a_slot > 0x1f) {
+            return;
+        }
         RandomAccessFile m_file = null;
         /* TODO: Got bug report that this function created "an enormous" .lsdsng file!
          * Should add more safety checks...
