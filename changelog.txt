@@ -31,3 +31,8 @@
  * LSD-Manager will now try to open v3 .sav files even if they are smaller than
    128kB. This may be necessary since some emulators/backup devices seem to
    truncate the .sav files if there is unused space at the end...
+
+2012-01-09: v0.9
+
+ * Added checks so that it is only possible to "clear slot" or "export .lsdsng"
+   when a song is selected.
