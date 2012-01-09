@@ -176,6 +176,10 @@ public class Frame extends JFrame {
     {
         int l_slot = jSongSlotList.getSelectedIndex();
         if (l_slot < 0 || l_slot > 0x1f) {
+            JOptionPane.showMessageDialog(null,
+                    "Please select a song!",
+                    "No song selected!",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         m_file.clear_slot(l_slot);
@@ -197,6 +201,10 @@ public class Frame extends JFrame {
     {
         int l_slot = jSongSlotList.getSelectedIndex();
         if (l_slot < 0 || l_slot > 0x1f) {
+            JOptionPane.showMessageDialog(null,
+                    "Please select a song!",
+                    "No song selected!",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
