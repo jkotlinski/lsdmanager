@@ -123,7 +123,6 @@ public class LSDSavFile
     {
         int l_ram_ptr = g_block_alloc_table_start_ptr;
         int l_block = 0;
-        int l_free_block_count = 0;
 
         while (l_block < getTotalBlockCount() )
         {
@@ -213,7 +212,6 @@ public class LSDSavFile
     {
         int l_block_alloc_table_ptr = g_block_alloc_table_start_ptr;
         int l_block = 0;
-        int l_free_block_count = 0;
 
         while (l_block < getTotalBlockCount())
         {
@@ -231,7 +229,6 @@ public class LSDSavFile
     {
         int l_ram_ptr = g_block_alloc_table_start_ptr;
         int l_block = 0;
-        int l_free_block_count = 0;
 
         while (l_block < getTotalBlockCount())
         {

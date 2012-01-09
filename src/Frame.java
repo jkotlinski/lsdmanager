@@ -175,6 +175,9 @@ public class Frame extends JFrame {
     public void clearSlotButton_actionPerformed(ActionEvent e)
     {
         int l_slot = jSongSlotList.getSelectedIndex();
+        if (l_slot < 0 || l_slot > 0x1f) {
+            return;
+        }
         m_file.clear_slot(l_slot);
         m_file.populate_slot_list(jSongSlotList);
         update_ram_usage_indicator();
@@ -223,7 +226,6 @@ public class Frame extends JFrame {
 
         if ( JFileChooser.APPROVE_OPTION == l_ret_val )
         {
-            int l_slot = jSongSlotList.getSelectedIndex();
             m_file.add_song_from_file(
                 l_file_chooser.getSelectedFile().getAbsoluteFile().toString()
                 );
