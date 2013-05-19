@@ -1,3 +1,6 @@
+package com.littlesounddj.lsdmanager;
+
+
 /** Copyright (c) 2010, Johan Kotlinski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,11 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
-package com.littlesounddj.lsdmanager;
-
 import java.io.RandomAccessFile;
 import javax.swing.JList;
-import javax.swing.JTable;
 
 public class LSDSavFile
 {
@@ -207,7 +207,7 @@ public class LSDSavFile
             }
             l_file_name_ptr += g_file_name_length;
         }
-        throw new Exception("no free slot found");
+        throw new Exception("No free slot found");
     }
 
     public int get_block_id_of_first_free_block() throws Exception
@@ -224,7 +224,7 @@ public class LSDSavFile
             }
             l_block++;
         }
-        throw new Exception ("no free block found");
+        throw new Exception ("No free block found");
     }
 
     public void debug_dump_fat()
@@ -285,7 +285,7 @@ public class LSDSavFile
         return true;
     }
 
-    public void populate_slot_list(JList a_slot_list)
+    public void populate_slot_list(JList<String> a_slot_list)
     {
         String l_slot_string_list[] = new String[g_slot_count];
         a_slot_list.removeAll();
@@ -307,7 +307,7 @@ public class LSDSavFile
         a_slot_list.setListData(l_slot_string_list);
     }
 
-    private String get_file_name(int l_slot)
+    public String get_file_name(int l_slot)
     {
         String l_string = "";
         int l_ram_ptr = g_file_name_start_ptr + g_file_name_length * l_slot;
@@ -534,4 +534,5 @@ public class LSDSavFile
         clear_active_file_slot();
         return true;
     }
+    
 }
