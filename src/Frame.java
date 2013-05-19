@@ -49,7 +49,7 @@ public class Frame extends JFrame {
     JButton openSavButton = new JButton();
     JButton saveSavAsButton = new JButton();
     JProgressBar jRamUsageIndicator = new JProgressBar();
-    JList<String> jSongSlotList = new JList<String>();
+    JList jSongSlotList = new JList();
     JScrollPane jScrollPane1 = new JScrollPane(jSongSlotList);
     JButton importV2SavButton = new JButton();
     JButton exportV2SavButton = new JButton();
