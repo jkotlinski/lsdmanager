@@ -290,13 +290,17 @@ public class LSDSavFile
 
         for (int l_slot = 0; l_slot < g_slot_count; l_slot++)
         {
+            int blocks_used = get_blocks_used(l_slot);
             String l_slot_string = l_slot + ". ";
 
-            l_slot_string += get_file_name(l_slot);
-            if (0 != get_version(l_slot))
+            if (blocks_used > 0)
             {
-                l_slot_string += "\t." + get_version(l_slot);
-                l_slot_string += " " + get_blocks_used(l_slot);
+                l_slot_string += get_file_name(l_slot);
+                if (0 != get_version(l_slot))
+                {
+                    l_slot_string += "\t." + get_version(l_slot);
+                    l_slot_string += " " + get_blocks_used(l_slot);
+                }
             }
 
             l_slot_string_list[l_slot] = l_slot_string;
