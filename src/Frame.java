@@ -97,7 +97,7 @@ public class Frame extends JFrame {
         this.setSize(new Dimension(352, 333));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setResizable(false);
-        this.setTitle("LSDManager v0.8");
+        this.setTitle("LSDManager v0.9");
 
         jScrollPane1.setBounds(new Rectangle(11, 35, 178, 236));
         importV2SavButton.setBounds(new Rectangle(197, 108, 140, 31));
