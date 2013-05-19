@@ -18,6 +18,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 
+package com.littlesounddj.lsdmanager;
+
 import java.io.RandomAccessFile;
 import javax.swing.JList;
 import javax.swing.JTable;
