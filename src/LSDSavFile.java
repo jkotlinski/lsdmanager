@@ -285,7 +285,7 @@ public class LSDSavFile
         return true;
     }
 
-    public void populate_slot_list(JList<String> a_slot_list)
+    public void populate_slot_list(JList a_slot_list)
     {
         String l_slot_string_list[] = new String[g_slot_count];
         a_slot_list.removeAll();
