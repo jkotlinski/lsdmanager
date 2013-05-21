@@ -146,7 +146,7 @@ public class LSDSavFile
         }
     }
 
-    private int get_blocks_used ( int a_slot )
+    public int get_blocks_used ( int a_slot )
     {
         int l_ram_ptr = g_block_alloc_table_start_ptr;
         int l_block = 0;
