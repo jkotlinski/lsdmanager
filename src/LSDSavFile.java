@@ -332,7 +332,7 @@ public class LSDSavFile
         return l_string;
     }
 
-    private String get_version(int slot)
+    public String get_version(int slot)
     {
         int ram_ptr = g_file_version_start_ptr + slot;
         String version = Integer.toHexString(m_work_ram[ram_ptr]);
