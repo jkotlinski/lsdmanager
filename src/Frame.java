@@ -241,15 +241,15 @@ public class Frame extends JFrame {
             l_file_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             l_file_chooser.setDialogTitle(
                     "Batch export selected slots to compressed .lsdsng files");
-            int l_ret_val = l_file_chooser.showDialog(null, "Choose Directory");
+            int ret_val = l_file_chooser.showDialog(null, "Choose Directory");
             
-            if (JFileChooser.APPROVE_OPTION == l_ret_val) {
+            if (JFileChooser.APPROVE_OPTION == ret_val) {
                 m_latest_sng_path = l_file_chooser.getSelectedFile()
                         .getAbsolutePath().toString();
 
-                for (int l_slot : l_slots) {
-                    String filename = m_file.get_file_name(l_slot).toLowerCase()
-                            + "-" + m_file.get_version(l_slot) + ".lsdsng";
+                for (int slot : l_slots) {
+                    String filename = m_file.get_file_name(slot).toLowerCase()
+                            + "-" + m_file.get_version(slot) + ".lsdsng";
                     String path = m_latest_sng_path + File.separator + filename;
                     String[] options = { "Yes", "No", "Cancel" };
                     File f = new File(path);
@@ -277,7 +277,9 @@ public class Frame extends JFrame {
                         } else if (overWrite == JOptionPane.CANCEL_OPTION)
                             return;
                     }
-                    m_file.export_song_to_file(l_slot, path);
+                    if (m_file.get_blocks_used(slot) > 0) {
+                        m_file.export_song_to_file(slot, path);
+                    }
                 }
             }
         }
