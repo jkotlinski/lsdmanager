@@ -196,16 +196,11 @@ public class LSDSavFile
         return false;
     }
 
-    public byte get_free_slot() throws Exception
-    {
-        int l_file_name_ptr = g_file_name_start_ptr;
-        for ( byte l_slot = 0; l_slot < g_slot_count; l_slot++ )
-        {
-            if ( 0 == m_work_ram[l_file_name_ptr] )
-            {
-                return l_slot;
+    public byte get_free_slot() throws Exception {
+        for (byte slot = 0; slot < g_slot_count; slot++) {
+            if (0 == get_blocks_used(slot)) {
+                return slot;
             }
-            l_file_name_ptr += g_file_name_length;
         }
         throw new Exception("No free slot found");
     }
