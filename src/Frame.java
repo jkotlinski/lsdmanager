@@ -47,7 +47,7 @@ public class Frame extends JFrame {
     JButton openSavButton = new JButton();
     JButton saveSavAsButton = new JButton();
     JProgressBar jRamUsageIndicator = new JProgressBar();
-    JList<String> jSongSlotList = new JList<String>();
+    JList jSongSlotList = new JList();
     JScrollPane jScrollPane1 = new JScrollPane(jSongSlotList);
     JButton importV2SavButton = new JButton();
     JButton exportV2SavButton = new JButton();
@@ -239,23 +239,23 @@ public class Frame extends JFrame {
             l_file_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             l_file_chooser.setDialogTitle(
                     "Batch export selected slots to compressed .lsdsng files");
-            int l_ret_val = l_file_chooser.showDialog(null, "Choose Directory");
+            int ret_val = l_file_chooser.showDialog(null, "Choose Directory");
             
-            if (JFileChooser.APPROVE_OPTION == l_ret_val) {
+            if (JFileChooser.APPROVE_OPTION == ret_val) {
                 m_latest_sng_path = l_file_chooser.getSelectedFile()
                         .getAbsolutePath().toString();
 
-                for (int l_slot : l_slots) {
-                    String filename = m_latest_sng_path + File.separator
-                            + m_file.get_file_name(l_slot).toLowerCase() 
-                            + ".lsdsng";
+                for (int slot : l_slots) {
+                    String filename = m_file.get_file_name(slot).toLowerCase()
+                            + "-" + m_file.get_version(slot) + ".lsdsng";
+                    String path = m_latest_sng_path + File.separator + filename;
                     String[] options = { "Yes", "No", "Cancel" };
-                    File f = new File(filename);
+                    File f = new File(path);
                     if (f.exists()) {
                         int overWrite = JOptionPane.showOptionDialog(
                                 this, "File \"" 
-                                + m_file.get_file_name(l_slot).toLowerCase() 
-                                + ".lsdsng\" aready exists.\n"
+                                + filename
+                                + "\" aready exists.\n"
                                 + "Overwrite existing file?", "Warning",
                                 JOptionPane.YES_NO_CANCEL_OPTION,
                                 JOptionPane.WARNING_MESSAGE, null, options,
@@ -275,7 +275,9 @@ public class Frame extends JFrame {
                         } else if (overWrite == JOptionPane.CANCEL_OPTION)
                             return;
                     }
-                    m_file.export_song_to_file(l_slot, filename);
+                    if (m_file.get_blocks_used(slot) > 0) {
+                        m_file.export_song_to_file(slot, path);
+                    }
                 }
             }
         }

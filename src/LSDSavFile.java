@@ -146,7 +146,7 @@ public class LSDSavFile
         }
     }
 
-    private int get_blocks_used ( int a_slot )
+    public int get_blocks_used ( int a_slot )
     {
         int l_ram_ptr = g_block_alloc_table_start_ptr;
         int l_block = 0;
@@ -196,16 +196,11 @@ public class LSDSavFile
         return false;
     }
 
-    public byte get_free_slot() throws Exception
-    {
-        int l_file_name_ptr = g_file_name_start_ptr;
-        for ( byte l_slot = 0; l_slot < g_slot_count; l_slot++ )
-        {
-            if ( 0 == m_work_ram[l_file_name_ptr] )
-            {
-                return l_slot;
+    public byte get_free_slot() throws Exception {
+        for (byte slot = 0; slot < g_slot_count; slot++) {
+            if (0 == get_blocks_used(slot)) {
+                return slot;
             }
-            l_file_name_ptr += g_file_name_length;
         }
         throw new Exception("No free slot found");
     }
@@ -285,24 +280,18 @@ public class LSDSavFile
         return true;
     }
 
-    public void populate_slot_list(JList<String> a_slot_list)
-    {
+    public void populate_slot_list(JList a_slot_list) {
         String l_slot_string_list[] = new String[g_slot_count];
         a_slot_list.removeAll();
 
-        for (int l_slot = 0; l_slot < g_slot_count; l_slot++)
-        {
+        for (int l_slot = 0; l_slot < g_slot_count; l_slot++) {
             int blocks_used = get_blocks_used(l_slot);
-            String l_slot_string = l_slot + ". ";
+            String l_slot_string = l_slot + 1 + ". ";
 
-            if (blocks_used > 0)
-            {
+            if (blocks_used > 0) {
                 l_slot_string += get_file_name(l_slot);
-                if (0 != get_version(l_slot))
-                {
-                    l_slot_string += "\t." + get_version(l_slot);
-                    l_slot_string += " " + get_blocks_used(l_slot);
-                }
+                l_slot_string += "\t." + get_version(l_slot);
+                l_slot_string += " " + blocks_used;
             }
 
             l_slot_string_list[l_slot] = l_slot_string;
@@ -338,11 +327,11 @@ public class LSDSavFile
         return l_string;
     }
 
-    private int get_version(int l_slot)
+    public String get_version(int slot)
     {
-        int l_ram_ptr = g_file_version_start_ptr + l_slot;
-        int l_version = m_work_ram[l_ram_ptr];
-        return l_version;
+        int ram_ptr = g_file_version_start_ptr + slot;
+        String version = Integer.toHexString(m_work_ram[ram_ptr]);
+        return version.substring(Math.max(version.length() - 2, 0)).toUpperCase();
     }
 
     public void export_song_to_file(int a_slot, String a_file_path)
