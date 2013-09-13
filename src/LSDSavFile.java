@@ -290,7 +290,7 @@ public class LSDSavFile
 
             if (blocks_used > 0) {
                 l_slot_string += get_file_name(l_slot);
-                l_slot_string += "\t." + get_version(l_slot);
+                l_slot_string += "." + get_version(l_slot);
                 l_slot_string += " " + blocks_used;
             }
 
