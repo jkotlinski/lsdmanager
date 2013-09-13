@@ -1,0 +1,46 @@
+0.1a: initial
+
+0.2a
+
+ * added: export work memory to 32kByte v2 .sav
+
+0.3a
+
+ * made file mem usage indicator more understandable
+ * fixed bug with "Add .lsdsng..." button
+ * replaced showOpenDialog with showSaveDialog where appropriate
+
+0.4a
+
+ * fixed bug when adding .lsdsng 's...
+
+2006-12-19: v0.5
+
+ * bugfix in .lsdsng export
+
+2007-02-01: v0.6
+
+ * Another bugfix for .lsdsng add. Thanx Rabato!
+
+2007-02-03: v0.7
+
+ * Fix for Japanese white Nintendo Power cartridges. Thanx Xinon!
+
+2011-04-03: v0.8
+
+ * LSD-Manager will now try to open v3 .sav files even if they are smaller than
+   128kB. This may be necessary since some emulators/backup devices seem to
+   truncate the .sav files if there is unused space at the end...
+
+2012-01-09: v0.9
+
+ * Added checks so that it is only possible to "clear slot" or "export .lsdsng"
+   when a song is selected.
+
+2013-09-13: v1.0
+
+ * A number of improvements done by Craphazzard:
+  - remember directories from last run
+  - import + export multiple songs in one go
+  - native look & feel
+ * Tidy up song list

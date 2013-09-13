@@ -1,0 +1,7 @@
+syntax: glob
+*.jar
+*.class
+tags
+*~
+*.orig
+.DS_Store
