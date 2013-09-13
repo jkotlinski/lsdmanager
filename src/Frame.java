@@ -64,7 +64,6 @@ public class Frame extends JFrame {
         prefs = Preferences.userNodeForPackage(Frame.class);
         m_latest_sav_path = prefs.get(LATEST_SAV_PATH, m_latest_sav_path);
         m_latest_sng_path = prefs.get(LATEST_SNG_PATH, m_latest_sng_path);
-        this.addWindowListener(new Frame_WindowAdapter(this));
         
         try {
             jbInit();
@@ -170,6 +169,7 @@ public class Frame extends JFrame {
                 m_file.populate_slot_list(jSongSlotList);
                 workMemLabel.setText("Loaded work+file memory.");
                 enable_all_buttons();
+                SavePrefs();
             } else {
                 workMemLabel.setText("File is not valid 128kB .SAV!");
             }
@@ -234,6 +234,7 @@ public class Frame extends JFrame {
                 }
 
                 m_file.export_song_to_file(l_slots[0], l_file_name);
+                SavePrefs();
             }
         } else if (l_slots.length > 1) {
             l_file_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -244,6 +245,7 @@ public class Frame extends JFrame {
             if (JFileChooser.APPROVE_OPTION == ret_val) {
                 m_latest_sng_path = l_file_chooser.getSelectedFile()
                         .getAbsolutePath().toString();
+                SavePrefs();
 
                 for (int slot : l_slots) {
                     String filename = m_file.get_file_name(slot).toLowerCase()
@@ -300,7 +302,9 @@ public class Frame extends JFrame {
             m_latest_sng_path = l_file_chooser.getSelectedFiles()[0]
                     .getAbsoluteFile().getParent().toString();
             update_ram_usage_indicator();
-            if (!success)
+            if (success)
+                SavePrefs();
+            else
                 JOptionPane.showMessageDialog(this, 
                         "Not enough free blocks or song slots!", 
                         "Error adding song(s)!", 
@@ -367,7 +371,7 @@ public class Frame extends JFrame {
         }
     }
 
-    public void FrameWindowClosing(WindowEvent e) {
+    public void SavePrefs() {
         prefs.put(LATEST_SAV_PATH, m_latest_sav_path);
         prefs.put(LATEST_SNG_PATH, m_latest_sng_path);
     }
@@ -469,17 +473,3 @@ class Frame_jSongSlotList_listSelectionListener implements
         adaptee.jSongSlotList_valueChanged(e);
     }
 }
-
-class Frame_WindowAdapter extends WindowAdapter {
-    private Frame adaptee;
-    
-    Frame_WindowAdapter(Frame adaptee) {
-        this.adaptee = adaptee;
-    }
-    
-    public void windowClosing(WindowEvent e) {
-        adaptee.FrameWindowClosing(e);
-    }
-}
-
-
