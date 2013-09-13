@@ -36,3 +36,11 @@
 
  * Added checks so that it is only possible to "clear slot" or "export .lsdsng"
    when a song is selected.
+
+2013-09-13: v1.0
+
+ * A number of improvements done by Craphazzard:
+  - remember directories from last run
+  - import + export multiple songs in one go
+  - native look & feel
+ * Tidy up song list

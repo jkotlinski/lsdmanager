@@ -1,7 +1,4 @@
-package com.littlesounddj.lsdmanager;
-
-
-/** Copyright (c) 2005-2011, Johan Kotlinski
+/** {{{ Copyright (c) 2005-2013, Johan Kotlinski
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +16,9 @@ package com.littlesounddj.lsdmanager;
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE. */
+ THE SOFTWARE. }}} */
+
+package com.littlesounddj.lsdmanager;
 
 import java.awt.*;
 import javax.swing.JButton;
@@ -39,7 +38,6 @@ import java.util.prefs.*;
 public class Frame extends JFrame {
     
     LSDSavFile m_file;
-    // String m_latest_path = "c:\\dev\\lsdmanager\\";
     String m_latest_sav_path = "\\";
     String m_latest_sng_path = "\\";
     
@@ -118,7 +116,7 @@ public class Frame extends JFrame {
         this.setSize(new Dimension(352, 333));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setResizable(false);
-        this.setTitle("LSDManager v0.9");
+        this.setTitle("LSDManager v1.0");
 
         jScrollPane1.setBounds(new Rectangle(11, 35, 178, 236));
         importV2SavButton.setBounds(new Rectangle(197, 108, 140, 31));
