@@ -74,7 +74,7 @@ public class Frame extends JFrame {
 
     private void jbInit() throws Exception {
         
-        addLsdSngButton.setBounds(new Rectangle(197, 195, 139, 31));
+        addLsdSngButton.setBounds(new Rectangle(197, 108, 140, 31));
         addLsdSngButton.setEnabled(false);
         addLsdSngButton.setToolTipText(
                 "Add compressed .lsdsng to file memory");
@@ -87,7 +87,7 @@ public class Frame extends JFrame {
         clearSlotButton.setText("Clear Slot");
         clearSlotButton.addActionListener(
                 new Frame_clearSlotButton_actionAdapter(this));
-        exportLsdSngButton.setBounds(new Rectangle(197, 231, 139, 31));
+        exportLsdSngButton.setBounds(new Rectangle(197, 144, 140, 31));
         exportLsdSngButton.setEnabled(false);
         exportLsdSngButton.setToolTipText(
                 "Export compressed .lsdsng from file memory");
@@ -118,7 +118,7 @@ public class Frame extends JFrame {
         this.setTitle("LSDManager v1.0");
 
         jScrollPane1.setBounds(new Rectangle(11, 35, 178, 236));
-        importV2SavButton.setBounds(new Rectangle(197, 108, 140, 31));
+        importV2SavButton.setBounds(new Rectangle(197, 195, 139, 31));
         importV2SavButton.setEnabled(false);
         importV2SavButton.setToolTipText(
                 "Import 32 kByte V2 .SAV file to work memory "
@@ -127,7 +127,7 @@ public class Frame extends JFrame {
         importV2SavButton.setText("Import V2 .SAV...");
         importV2SavButton.addActionListener(
                 new Frame_importV2SavButton_actionAdapter(this));
-        exportV2SavButton.setBounds(new Rectangle(197, 144, 140, 31));
+        exportV2SavButton.setBounds(new Rectangle(197, 231, 139, 31));
         exportV2SavButton.setEnabled(false);
         exportV2SavButton.setToolTipText(
                 "Export work memory to 32 kByte V2 .SAV");
