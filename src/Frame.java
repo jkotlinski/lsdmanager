@@ -35,7 +35,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.*;
 import java.util.prefs.*;
 
-public class Frame extends JFrame {
+public class Frame extends JFrame implements ActionListener {
     
     LSDSavFile m_file;
     String m_latest_sav_path = "\\";
@@ -79,34 +79,29 @@ public class Frame extends JFrame {
         addLsdSngButton.setToolTipText(
                 "Add compressed .lsdsng to file memory");
         addLsdSngButton.setText("Add .lsdsng...");
-        addLsdSngButton.addActionListener(
-                new Frame_addLsdSngButton_actionAdapter(this));
+        addLsdSngButton.addActionListener(this);
         clearSlotButton.setBounds(new Rectangle(197, 267, 139, 30));
         clearSlotButton.setEnabled(false);
         clearSlotButton.setToolTipText("Clear file memory slot");
         clearSlotButton.setText("Clear Slot");
-        clearSlotButton.addActionListener(
-                new Frame_clearSlotButton_actionAdapter(this));
+        clearSlotButton.addActionListener(this);
         exportLsdSngButton.setBounds(new Rectangle(197, 144, 140, 31));
         exportLsdSngButton.setEnabled(false);
         exportLsdSngButton.setToolTipText(
                 "Export compressed .lsdsng from file memory");
         exportLsdSngButton.setText("Export .lsdsng...");
-        exportLsdSngButton.addActionListener(
-                new Frame_exportLsdSngButton_actionAdapter(this));
+        exportLsdSngButton.addActionListener(this);
         jSongSlotList.addListSelectionListener(
                 new Frame_jSongSlotList_listSelectionListener(this));
 
         openSavButton.setBounds(new Rectangle(198, 11, 139, 36));
         openSavButton.setPreferredSize(new Dimension(99, 20));
         openSavButton.setText("Open V3+ .SAV...");
-        openSavButton.addActionListener(
-                new Frame_openSavButton_actionAdapter(this));
+        openSavButton.addActionListener(this);
         saveSavAsButton.setBounds(new Rectangle(198, 52, 139, 36));
         saveSavAsButton.setEnabled(false);
         saveSavAsButton.setText("Save V3+ .SAV as...");
-        saveSavAsButton.addActionListener(
-                new Frame_saveSavAsButton_actionAdapter(this));
+        saveSavAsButton.addActionListener(this);
         jRamUsageIndicator.setString("");
         jRamUsageIndicator.setStringPainted(true);
         jRamUsageIndicator.setBounds(new Rectangle(11, 276, 178, 20));
@@ -125,16 +120,14 @@ public class Frame extends JFrame {
                         + "(will overwrite what\'s already there!!)");
         importV2SavButton.setActionCommand("Import V2 SAV...");
         importV2SavButton.setText("Import V2 .SAV...");
-        importV2SavButton.addActionListener(
-                new Frame_importV2SavButton_actionAdapter(this));
+        importV2SavButton.addActionListener(this);
         exportV2SavButton.setBounds(new Rectangle(197, 231, 139, 31));
         exportV2SavButton.setEnabled(false);
         exportV2SavButton.setToolTipText(
                 "Export work memory to 32 kByte V2 .SAV");
         exportV2SavButton.setActionCommand("Export to V2 SAV...");
         exportV2SavButton.setText("Export V2 .SAV...");
-        exportV2SavButton.addActionListener(
-                new Frame_exportV2SavButton_actionAdapter(this));
+        exportV2SavButton.addActionListener(this);
         workMemLabel.setText("Work memory empty.");
         workMemLabel.setBounds(new Rectangle(11, 11, 178, 21));
         this.getContentPane().add(jScrollPane1);
@@ -375,89 +368,24 @@ public class Frame extends JFrame {
         prefs.put(LATEST_SAV_PATH, m_latest_sav_path);
         prefs.put(LATEST_SNG_PATH, m_latest_sng_path);
     }
-}
-
-class Frame_exportV2SavButton_actionAdapter implements ActionListener {
-    private Frame adaptee;
-
-    Frame_exportV2SavButton_actionAdapter(Frame adaptee) {
-        this.adaptee = adaptee;
-    }
 
     public void actionPerformed(ActionEvent e) {
-        adaptee.exportV2SavButton_actionPerformed(e);
-    }
-}
-
-class Frame_saveSavAsButton_actionAdapter implements ActionListener {
-    private Frame adaptee;
-
-    Frame_saveSavAsButton_actionAdapter(Frame adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.saveSavAsButton_actionPerformed(e);
-    }
-}
-
-class Frame_importV2SavButton_actionAdapter implements ActionListener {
-    private Frame adaptee;
-
-    Frame_importV2SavButton_actionAdapter(Frame adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.importV2SavButton_actionPerformed(e);
-    }
-}
-
-class Frame_addLsdSngButton_actionAdapter implements ActionListener {
-    private Frame adaptee;
-
-    Frame_addLsdSngButton_actionAdapter(Frame adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.addLsdSngButton_actionPerformed(e);
-    }
-}
-
-class Frame_exportLsdSngButton_actionAdapter implements ActionListener {
-    private Frame adaptee;
-
-    Frame_exportLsdSngButton_actionAdapter(Frame adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.exportLsdSngButton_actionPerformed(e);
-    }
-}
-
-class Frame_clearSlotButton_actionAdapter implements ActionListener {
-    private Frame adaptee;
-
-    Frame_clearSlotButton_actionAdapter(Frame adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.clearSlotButton_actionPerformed(e);
-    }
-}
-
-class Frame_openSavButton_actionAdapter implements ActionListener {
-    private Frame adaptee;
-
-    Frame_openSavButton_actionAdapter(Frame adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.openSavButton_actionPerformed(e);
+        if (e.getSource() == exportV2SavButton)
+            exportV2SavButton_actionPerformed(e);
+        else if (e.getSource() == saveSavAsButton)
+            saveSavAsButton_actionPerformed(e);
+        else if (e.getSource() == importV2SavButton)
+            importV2SavButton_actionPerformed(e);
+        else if (e.getSource() == addLsdSngButton)
+            addLsdSngButton_actionPerformed(e);
+        else if (e.getSource() == exportLsdSngButton)
+            exportLsdSngButton_actionPerformed(e);
+        else if (e.getSource() == clearSlotButton)
+            clearSlotButton_actionPerformed(e);
+        else if (e.getSource() == openSavButton)
+            openSavButton_actionPerformed(e);
+        else
+            assert false : "unknown actionevent";
     }
 }
 
