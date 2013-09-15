@@ -1,0 +1,2 @@
+map <F4> :wall!<CR>:!sh make.sh<CR>
+map <F5> :!java -jar lsdmanager.jar<CR>
