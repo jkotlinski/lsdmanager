@@ -2,7 +2,7 @@
 
 Little Sound Dj (LSDj) .sav manager. Requires Java (http://www.java.com/). If you have problems running the .jar on Windows, try Jarfix (http://johann.loefflmann.net/en/software/jarfix/index.html)
 
-Download: https://github.com/jkotlinski/lsdmanager/releases/download/v1.0/LSDManager10.jar
+Download: https://github.com/jkotlinski/lsdmanager/releases/
 
 Manual: https://github.com/jkotlinski/lsdmanager/wiki/Operating-Manual
 
