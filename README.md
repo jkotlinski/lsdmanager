@@ -6,11 +6,11 @@ Download: https://github.com/jkotlinski/lsdmanager/releases/
 
 Manual: https://github.com/jkotlinski/lsdmanager/wiki/Operating-Manual
 
-*Warning!*
+### Warning!
 
 Always keep backups of your .sav files! Even if there are no known errors, this software is not guaranteed to be 100% error free. For bugfixes and feature requests, please e-mail info at littlesounddj dot com.
 
-*News*
+### News
 
 13 Sep 2013: v1.0
 
