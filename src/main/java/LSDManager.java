@@ -3,18 +3,18 @@ import javax.swing.UIManager;
 public class LSDManager
 {
 
-    public LSDManager()
-    {
-        Frame l_frame = new Frame();
-        //Validate frames that have preset sizes
-        //Pack frames that have useful preferred size info, e.g. from their layout
-        l_frame.validate();
-        l_frame.setLocation(200,200);
-        l_frame.setVisible(true);
-    }
-    
+	public LSDManager()
+	{
+		Frame l_frame = new Frame();
+		//Validate frames that have preset sizes
+		//Pack frames that have useful preferred size info, e.g. from their layout
+		l_frame.validate();
+		l_frame.setLocation(200,200);
+		l_frame.setVisible(true);
+	}
+
 	public static void main(String[] args)
-    {
+	{
 		//Try to set local system theme, default to cross-platform if fails.
 		try {
 			UIManager.setLookAndFeel(
@@ -28,6 +28,6 @@ public class LSDManager
 			}
 		}
 		new LSDManager();
-    }
+	}
 
 }

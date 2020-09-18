@@ -277,6 +277,25 @@ public class LSDSavFile
         a_slot_list.setListData(l_slot_string_list);
     }
 
+    private static int convertLsdCharToAscii ( int a_char )
+    {
+        if ( a_char >= 65 && a_char <= (65+25) )
+        {
+            //char
+            return 'A' + a_char - 65;
+        }
+        if ( a_char >= 48 && a_char < 58 )
+        {
+            //decimal number
+            return '0' + a_char - 48;
+        }
+        if ( 0 == a_char )
+        {
+            return 0;
+        }
+        return ' ';
+    }
+
     public String get_file_name(int l_slot)
     {
         String l_string = "";
@@ -288,7 +307,7 @@ public class LSDSavFile
         {
             if (!l_end_of_file_name)
             {
-                char l_char = (char) CharConv.convertLsdCharToAscii((char)
+                char l_char = (char) convertLsdCharToAscii((char)
                         m_work_ram[l_ram_ptr]);
                 if (0 == l_char)
                 {
