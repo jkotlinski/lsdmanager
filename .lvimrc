@@ -1,2 +1,2 @@
-map <F4> :wall!<CR>:!sh make.sh<CR>
-map <F5> :!java -jar lsdmanager.jar<CR>
+map <F4> :wall!<CR>:!mvn compile<CR>
+map <F5> :!java -cp target/classes LSDManager<CR>
