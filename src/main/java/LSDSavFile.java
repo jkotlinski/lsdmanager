@@ -1,4 +1,4 @@
-package com.littlesounddj.lsdmanager;
+//package lsdmanager;
 
 
 /** Copyright (c) 2010, Johan Kotlinski

@@ -18,7 +18,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE. }}} */
 
-package com.littlesounddj.lsdmanager;
+//package lsdmanager;
 
 import java.awt.*;
 import javax.swing.JButton;
