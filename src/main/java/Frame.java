@@ -117,29 +117,30 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
     }
 
     public void openSavButton_actionPerformed() {
-        JFileChooser fileChooser = new JFileChooser(latestSavPath);
-        fileChooser.setFileFilter(new SAVFilter());
-        fileChooser.setDialogTitle("Open 128kByte V3+ .sav");
+        FileDialog fileDialog = new FileDialog(this,
+                "Open 128kByte V3+ .sav",
+                FileDialog.LOAD);
+        fileDialog.setDirectory(latestSavPath);
+        fileDialog.setFile("*.sav");
+        fileDialog.setVisible(true);
 
-        int retVal = fileChooser.showOpenDialog(null);
+        String fileName = fileDialog.getFile();
+        if (fileName == null) {
+            return;
+        }
 
-        if (JFileChooser.APPROVE_OPTION == retVal) {
-            latestSavPath = fileChooser.getSelectedFile().getAbsoluteFile()
-                    .getParent();
-            if (latestSngPath.equals("\\"))
-                latestSngPath = latestSavPath;
+        latestSavPath = fileDialog.getDirectory();
+        if (latestSngPath.equals("\\")) {
+            latestSngPath = latestSavPath;
+        }
 
-            boolean fileLoadedOk = this.file.loadFromSav(fileChooser
-                    .getSelectedFile().getAbsoluteFile().toString());
-
-            if (fileLoadedOk) {
-                file.populateSlotList(songList);
-                workMemLabel.setText("Loaded work+file memory.");
-                enableAllButtons();
-                savePreferences();
-            } else {
-                workMemLabel.setText("File is not valid 128kB .SAV!");
-            }
+        if (this.file.loadFromSav(latestSavPath + fileName)) {
+            file.populateSlotList(songList);
+            workMemLabel.setText("Loaded work+file memory.");
+            enableAllButtons();
+            savePreferences();
+        } else {
+            workMemLabel.setText("File is not valid 128kB .SAV!");
         }
     }
 

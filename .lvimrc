@@ -1,2 +1,0 @@
-map <F4> :wall!<CR>:!mvn compile<CR>
-map <F5> :!java -cp target/classes LSDManager<CR>
