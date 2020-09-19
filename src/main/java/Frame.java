@@ -135,15 +135,15 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
             if (fileLoadedOk) {
                 file.populateSlotList(songList);
                 workMemLabel.setText("Loaded work+file memory.");
-                enable_all_buttons();
-                SavePrefs();
+                enableAllButtons();
+                savePreferences();
             } else {
                 workMemLabel.setText("File is not valid 128kB .SAV!");
             }
         }
     }
 
-    private void enable_all_buttons() {
+    private void enableAllButtons() {
         exportV2SavButton.setEnabled(true);
         openSavButton.setEnabled(true);
         saveSavAsButton.setEnabled(true);
@@ -194,14 +194,14 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
             if (JFileChooser.APPROVE_OPTION == ret) {
                 latestSngPath = fileChooser.getSelectedFile()
                         .getAbsoluteFile().getParent();
-                String l_file_name = fileChooser.getSelectedFile()
+                String fileName = fileChooser.getSelectedFile()
                         .getAbsoluteFile().toString();
-                if (!l_file_name.toUpperCase().endsWith(".LSDSNG")) {
-                    l_file_name += ".lsdsng";
+                if (!fileName.toUpperCase().endsWith(".LSDSNG")) {
+                    fileName += ".lsdsng";
                 }
 
-                file.exportSongToFile(slots[0], l_file_name);
-                SavePrefs();
+                file.exportSongToFile(slots[0], fileName);
+                savePreferences();
             }
         } else if (slots.length > 1) {
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -212,7 +212,7 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
             if (JFileChooser.APPROVE_OPTION == ret_val) {
                 latestSngPath = fileChooser.getSelectedFile()
                         .getAbsolutePath();
-                SavePrefs();
+                savePreferences();
 
                 for (int slot : slots) {
                     String filename = file.getFileName(slot).toLowerCase()
@@ -272,59 +272,61 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
                     .getAbsoluteFile().getParent();
             updateRamUsageIndicator();
             if (success) {
-                SavePrefs();
+                savePreferences();
             }
         }
     }
 
     public void importV2SavButton_actionPerformed() {
-        JFileChooser l_file_chooser = new JFileChooser(latestSavPath);
-        l_file_chooser.setFileFilter(new SAVFilter());
-        l_file_chooser.setDialogTitle(
+        JFileChooser fileChooser = new JFileChooser(latestSavPath);
+        fileChooser.setFileFilter(new SAVFilter());
+        fileChooser.setDialogTitle(
                 "Import 32kByte .sav file to work memory");
-        int l_ret_val = l_file_chooser.showOpenDialog(null);
+        int retVal = fileChooser.showOpenDialog(null);
 
-        if (JFileChooser.APPROVE_OPTION == l_ret_val) {
+        if (JFileChooser.APPROVE_OPTION == retVal) {
             file.import_32kb_sav_to_work_ram(
-                    l_file_chooser.getSelectedFile().getAbsoluteFile().toString());
+                    fileChooser.getSelectedFile().getAbsoluteFile().toString());
             workMemLabel.setText("Work memory updated.");
         }
     }
 
     public void saveSavAsButton_actionPerformed() {
-        JFileChooser l_file_chooser = new JFileChooser(latestSavPath);
-        l_file_chooser.setFileFilter(new SAVFilter());
-        l_file_chooser.setDialogTitle("Save 128kByte V3+ .sav file");
-
-        int l_ret_val = l_file_chooser.showSaveDialog(null);
-
-        if (JFileChooser.APPROVE_OPTION == l_ret_val) {
-            String l_file_name = l_file_chooser.getSelectedFile()
-                    .getAbsoluteFile().toString();
-            if (!l_file_name.toUpperCase().endsWith(".SAV")) {
-                l_file_name += ".sav";
-            }
-            file.saveAs(l_file_name);
-        }
-    }
-
-    public void exportV2SavButton_actionPerformed() {
         JFileChooser fileChooser = new JFileChooser(latestSavPath);
         fileChooser.setFileFilter(new SAVFilter());
-        fileChooser.setDialogTitle("Export work memory to 32kByte v2 .sav file");
+        fileChooser.setDialogTitle("Save 128kByte V3+ .sav file");
 
+        int retVal = fileChooser.showSaveDialog(null);
 
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showSaveDialog(null)) {
+        if (JFileChooser.APPROVE_OPTION == retVal) {
             String fileName = fileChooser.getSelectedFile()
                     .getAbsoluteFile().toString();
             if (!fileName.toUpperCase().endsWith(".SAV")) {
                 fileName += ".sav";
             }
-            file.saveWorkMemoryAs(fileName);
+            file.saveAs(fileName);
         }
     }
 
-    public void SavePrefs() {
+    public void exportV2SavButton_actionPerformed() {
+        FileDialog fileDialog = new FileDialog(this,
+            "Export work memory to 32kByte v2 .sav file",
+            FileDialog.SAVE);
+        fileDialog.setDirectory(latestSavPath);
+        fileDialog.setFile("*.sav");
+        fileDialog.setVisible(true);
+        String fileName = fileDialog.getFile();
+        if (fileName == null) {
+            return;
+        }
+        String filePath = fileDialog.getDirectory() + fileName;
+        if (!filePath.toUpperCase().endsWith(".SAV")) {
+            filePath += ".sav";
+        }
+        file.saveWorkMemoryAs(filePath);
+    }
+
+    public void savePreferences() {
         preferences.put(LATEST_SAV_PATH, latestSavPath);
         preferences.put(LATEST_SNG_PATH, latestSngPath);
     }

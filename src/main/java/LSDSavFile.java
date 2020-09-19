@@ -172,8 +172,8 @@ public class LSDSavFile
 
         while (block < totalBlockCount())
         {
-            int l_table_value = workRam[blockAllocTableStartPtr++];
-            if (l_table_value < 0 || l_table_value > 0x1f)
+            int tableValue = workRam[blockAllocTableStartPtr++];
+            if (tableValue < 0 || tableValue > 0x1f)
             {
                 return block;
             }
