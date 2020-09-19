@@ -117,7 +117,7 @@ public class Frame extends JFrame implements ListSelectionListener {
         fileDialog.setVisible(true);
 
         String fileName = fileDialog.getFile();
-        if (fileName == null) {
+        if (fileName == null || !fileName.toLowerCase().endsWith(".sav")) {
             return;
         }
 
@@ -137,7 +137,7 @@ public class Frame extends JFrame implements ListSelectionListener {
         fileDialog.setVisible(true);
 
         String fileName = fileDialog.getFile();
-        if (fileName == null) {
+        if (fileName == null || !fileName.toLowerCase().endsWith(".sav")) {
             return;
         }
 
@@ -205,7 +205,7 @@ public class Frame extends JFrame implements ListSelectionListener {
             fileDialog.setFile("*.lsdsng");
             fileDialog.setVisible(true);
             String fileName = fileDialog.getFile();
-            if (fileName == null) {
+            if (fileName == null || !fileName.toLowerCase().endsWith(".lsdsng")) {
                 return;
             }
 
@@ -285,11 +285,12 @@ public class Frame extends JFrame implements ListSelectionListener {
 
         boolean success = true;
         for (File f : files) {
-            success &= file.addSongFromFile(f.getAbsoluteFile().toString());
-            file.populateSlotList(songList);
+            if (f.getName().toLowerCase().endsWith(".lsdsng")) {
+                success &= file.addSongFromFile(f.getAbsoluteFile().toString());
+                file.populateSlotList(songList);
+            }
         }
-        latestSngPath = files[0]
-                .getAbsoluteFile().getParent();
+        latestSngPath = files[0].getAbsoluteFile().getParent();
         updateRamUsageIndicator();
         if (success) {
             savePreferences();
@@ -304,7 +305,7 @@ public class Frame extends JFrame implements ListSelectionListener {
         fileDialog.setFile("*.sav");
         fileDialog.setVisible(true);
         String fileName = fileDialog.getFile();
-        if (fileName == null) {
+        if (fileName == null || !fileName.toLowerCase().endsWith(".sav")) {
             return;
         }
 
@@ -320,7 +321,7 @@ public class Frame extends JFrame implements ListSelectionListener {
         fileDialog.setFile("*.sav");
         fileDialog.setVisible(true);
         String fileName = fileDialog.getFile();
-        if (fileName == null) {
+        if (fileName == null || !fileName.toLowerCase().endsWith(".sav")) {
             return;
         }
         String filePath = fileDialog.getDirectory() + fileName;
