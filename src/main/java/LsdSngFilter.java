@@ -19,7 +19,7 @@ public class LsdSngFilter extends FileFilter {
 		}
 
 		String extension = getExtension(f);
-		return extension != null ? extension.equals("lsdsng") : false;
+		return extension != null && extension.equals("lsdsng");
 	}
 
 	public String getDescription() {

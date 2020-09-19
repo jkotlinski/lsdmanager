@@ -18,7 +18,7 @@ public class SAVFilter extends FileFilter {
 		}
 
 		String extension = getExtension(f);
-		return extension != null ? extension.equals("sav") : false;
+		return extension != null && extension.equals("sav");
 	}
 
 	public String getDescription() {

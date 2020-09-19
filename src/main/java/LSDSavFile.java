@@ -1,5 +1,5 @@
 import java.io.RandomAccessFile;
-import javax.swing.JList;
+import javax.swing.*;
 
 public class LSDSavFile
 {
@@ -20,7 +20,7 @@ public class LSDSavFile
     boolean g_is_64_kb = false;
     boolean g_is_64_kb_has_been_set = false;
 
-    byte m_work_ram[];
+    byte[] m_work_ram;
     boolean m_file_is_loaded = false;
 
     public LSDSavFile()
@@ -59,30 +59,25 @@ public class LSDSavFile
         }
     }
 
-    public boolean save_as ( String a_file_path )
+    public void save_as ( String a_file_path )
     {
         try
         {
             RandomAccessFile l_file = new RandomAccessFile ( a_file_path, "rw" );
-            if ( isSixtyfourKbRam() )
+            if (isSixtyfourKbRam())
             {
-                for ( int i = 0; i < 0x10000; ++i )
-                {
-                    m_work_ram[i+0x10000] = m_work_ram[i];
-                }
+                System.arraycopy(m_work_ram, 0, m_work_ram, 65536, 0x10000);
             }
             l_file.write(m_work_ram);
             l_file.close();
         }
-        catch ( Exception e )
+        catch (Exception e)
         {
             e.printStackTrace();
-            return false;
         }
-        return true;
     }
 
-    public boolean save_work_memory_as ( String a_file_path )
+    public void save_work_memory_as(String a_file_path)
     {
         try
         {
@@ -93,9 +88,7 @@ public class LSDSavFile
         catch ( Exception e )
         {
             e.printStackTrace();
-            return false;
         }
-        return true;
     }
 
     public void clear_slot(int a_index)
@@ -199,6 +192,7 @@ public class LSDSavFile
         throw new Exception ("No free block found");
     }
 
+    /*
     public void debug_dump_fat()
     {
         int l_ram_ptr = g_block_alloc_table_start_ptr;
@@ -212,6 +206,7 @@ public class LSDSavFile
         }
         System.out.println();
     }
+    */
 
     public int get_free_blocks()
     {
@@ -233,8 +228,8 @@ public class LSDSavFile
 
     public boolean loadFromSav(String a_file_path)
     {
-        RandomAccessFile l_sav_file = null;
-        int l_read_bytes = 0;
+        RandomAccessFile l_sav_file;
+        int l_read_bytes;
 
         try
         {
@@ -257,8 +252,8 @@ public class LSDSavFile
         return true;
     }
 
-    public void populate_slot_list(JList a_slot_list) {
-        String l_slot_string_list[] = new String[g_slot_count];
+    public void populate_slot_list(JList<String> a_slot_list) {
+        String[] l_slot_string_list = new String[g_slot_count];
         a_slot_list.removeAll();
 
         for (int l_slot = 0; l_slot < g_slot_count; l_slot++) {
@@ -298,7 +293,7 @@ public class LSDSavFile
 
     public String get_file_name(int l_slot)
     {
-        String l_string = "";
+        StringBuilder l_string = new StringBuilder();
         int l_ram_ptr = g_file_name_start_ptr + g_file_name_length * l_slot;
         boolean l_end_of_file_name = false;
         for (int l_file_name_pos = 0;
@@ -315,12 +310,12 @@ public class LSDSavFile
                 }
                 else
                 {
-                    l_string += l_char;
+                    l_string.append(l_char);
                 }
             }
             l_ram_ptr++;
         }
-        return l_string;
+        return l_string.toString();
     }
 
     public String get_version(int slot)
@@ -335,7 +330,7 @@ public class LSDSavFile
         if (a_slot < 0 || a_slot > 0x1f) {
             return;
         }
-        RandomAccessFile m_file = null;
+        RandomAccessFile m_file;
         try
         {
             m_file = new RandomAccessFile(a_file_path, "rw");
@@ -378,21 +373,25 @@ public class LSDSavFile
 
     public boolean add_song_from_file(String a_file_path)
     {
-        RandomAccessFile m_file = null;
+        RandomAccessFile m_file;
         try
         {
             m_file = new RandomAccessFile(a_file_path, "r");
 
-            byte l_file_name[] = new byte[8];
+            byte[] l_file_name = new byte[8];
             m_file.read(l_file_name);
             byte l_file_version = m_file.readByte();
 
-            byte l_buffer[] = new byte[0x8000*4];
+            byte[] l_buffer = new byte[0x8000*4];
             int l_bytes_read = m_file.read(l_buffer);
             int l_blocks_read = l_bytes_read / g_block_size;
 
             if ( l_blocks_read > get_free_blocks() || !has_free_slot() )
             {
+                JOptionPane.showMessageDialog(null,
+                        "Not enough free blocks or song slots!",
+                        "Error adding song(s)!",
+                        JOptionPane.ERROR_MESSAGE);
                 return false;
             }
 
@@ -405,7 +404,7 @@ public class LSDSavFile
             m_work_ram[l_file_name_ptr++] = l_file_name[4];
             m_work_ram[l_file_name_ptr++] = l_file_name[5];
             m_work_ram[l_file_name_ptr++] = l_file_name[6];
-            m_work_ram[l_file_name_ptr++] = l_file_name[7];
+            m_work_ram[l_file_name_ptr] = l_file_name[7];
 
             int l_file_version_ptr = g_file_version_start_ptr + l_free_slot;
             m_work_ram[l_file_version_ptr] = l_file_version;
@@ -435,7 +434,10 @@ public class LSDSavFile
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    e.getLocalizedMessage(),
+                    "File open failed!",
+                    JOptionPane.ERROR_MESSAGE);
             return false;
         }
         return true;
@@ -456,22 +458,15 @@ public class LSDSavFile
         int l_ram_ptr = g_block_start_ptr + g_block_size * a_block;
         int l_byte_counter = 0;
 
-        while ( l_byte_counter < g_block_size )
+        while (l_byte_counter < g_block_size)
         {
-            if ( m_work_ram[l_ram_ptr] == (byte)0xc0 )
+            if (m_work_ram[l_ram_ptr] == (byte)0xc0)
             {
-                byte arg = m_work_ram[l_ram_ptr+1];
-                if ( arg == (byte) 0xc0 )
-                {
-                    l_ram_ptr++;
-                    l_byte_counter++;
-                }
-                else
-                {
+                l_ram_ptr++;
+                l_byte_counter++;
+                if (m_work_ram[l_ram_ptr] != (byte) 0xc0) {
                     //rle
                     l_ram_ptr++;
-                    l_ram_ptr++;
-                    l_byte_counter++;
                     l_byte_counter++;
                 }
             }
@@ -500,9 +495,9 @@ public class LSDSavFile
         return 0;
     }
 
-    public boolean import_32kb_sav_to_work_ram(String a_file_path)
+    public void import_32kb_sav_to_work_ram(String a_file_path)
     {
-        RandomAccessFile m_file = null;
+        RandomAccessFile m_file;
         try
         {
             m_file = new RandomAccessFile(a_file_path, "r");
@@ -511,17 +506,16 @@ public class LSDSavFile
 
             if ( l_bytes_read < g_bank_size )
             {
-                return false;
+                return;
             }
             m_file.close();
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            return false;
+            return;
         }
         clear_active_file_slot();
-        return true;
     }
     
 }
