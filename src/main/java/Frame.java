@@ -1,3 +1,5 @@
+import net.miginfocom.swing.MigLayout;
+
 import java.awt.*;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -23,7 +25,7 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
     JButton openSavButton = new JButton();
     JButton saveSavAsButton = new JButton();
     JProgressBar jRamUsageIndicator = new JProgressBar();
-    JList<String> songList = new JList<>();
+    JList<String> songList = new JList<>( new String[] { " " } );
     JScrollPane songs = new JScrollPane(songList);
     JButton importV2SavButton = new JButton();
     JButton exportV2SavButton = new JButton();
@@ -49,18 +51,15 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
     }
 
     private void jbInit() {
-        addLsdSngButton.setBounds(new Rectangle(197, 108, 140, 31));
         addLsdSngButton.setEnabled(false);
         addLsdSngButton.setToolTipText(
                 "Add compressed .lsdsng to file memory");
         addLsdSngButton.setText("Add .lsdsng...");
         addLsdSngButton.addActionListener(this);
-        clearSlotButton.setBounds(new Rectangle(197, 267, 139, 30));
         clearSlotButton.setEnabled(false);
         clearSlotButton.setToolTipText("Clear file memory slot");
         clearSlotButton.setText("Clear Slot");
         clearSlotButton.addActionListener(this);
-        exportLsdSngButton.setBounds(new Rectangle(197, 144, 140, 31));
         exportLsdSngButton.setEnabled(false);
         exportLsdSngButton.setToolTipText(
                 "Export compressed .lsdsng from file memory");
@@ -68,26 +67,18 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
         exportLsdSngButton.addActionListener(this);
         songList.addListSelectionListener(this);
 
-        openSavButton.setBounds(new Rectangle(198, 11, 139, 36));
-        openSavButton.setPreferredSize(new Dimension(99, 20));
         openSavButton.setText("Open V3+ .SAV...");
         openSavButton.addActionListener(this);
-        saveSavAsButton.setBounds(new Rectangle(198, 52, 139, 36));
         saveSavAsButton.setEnabled(false);
         saveSavAsButton.setText("Save V3+ .SAV as...");
         saveSavAsButton.addActionListener(this);
         jRamUsageIndicator.setString("");
         jRamUsageIndicator.setStringPainted(true);
-        jRamUsageIndicator.setBounds(new Rectangle(11, 276, 178, 20));
 
-        this.getContentPane().setLayout(null);
-        this.setSize(new Dimension(352, 333));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setResizable(false);
-        this.setTitle("LSDManager v1.0");
+        this.setTitle("LSDManager");
 
-        songs.setBounds(new Rectangle(11, 35, 178, 236));
-        importV2SavButton.setBounds(new Rectangle(197, 195, 139, 31));
         importV2SavButton.setEnabled(false);
         importV2SavButton.setToolTipText(
                 "Import 32 kByte V2 .SAV file to work memory "
@@ -95,7 +86,6 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
         importV2SavButton.setActionCommand("Import V2 SAV...");
         importV2SavButton.setText("Import V2 .SAV...");
         importV2SavButton.addActionListener(this);
-        exportV2SavButton.setBounds(new Rectangle(197, 231, 139, 31));
         exportV2SavButton.setEnabled(false);
         exportV2SavButton.setToolTipText(
                 "Export work memory to 32 kByte V2 .SAV");
@@ -103,17 +93,21 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
         exportV2SavButton.setText("Export V2 .SAV...");
         exportV2SavButton.addActionListener(this);
         workMemLabel.setText("Work memory empty.");
-        workMemLabel.setBounds(new Rectangle(11, 11, 178, 21));
-        this.getContentPane().add(songs);
-        this.getContentPane().add(openSavButton);
-        this.getContentPane().add(saveSavAsButton);
-        this.getContentPane().add(addLsdSngButton);
-        this.getContentPane().add(exportLsdSngButton);
-        this.getContentPane().add(clearSlotButton);
-        this.getContentPane().add(importV2SavButton);
-        this.getContentPane().add(exportV2SavButton);
-        this.getContentPane().add(jRamUsageIndicator);
-        this.getContentPane().add(workMemLabel);
+
+        java.awt.Container panel = this.getContentPane();
+        MigLayout layout = new MigLayout("wrap",
+                "[]8[]");
+        panel.setLayout(layout);
+        panel.add(workMemLabel, "cell 0 0 1 1");
+        panel.add(songs, "cell 0 1 1 8, growx, growy");
+        panel.add(jRamUsageIndicator, "cell 0 9 1 1, growx");
+        panel.add(openSavButton, "cell 1 0 1 1, growx");
+        panel.add(saveSavAsButton, "cell 1 1 1 1, growx");
+        panel.add(addLsdSngButton, "cell 1 2 1 1, growx, gaptop 10");
+        panel.add(exportLsdSngButton, "cell 1 3 1 1, growx");
+        panel.add(importV2SavButton, "cell 1 4 1 1, growx, gaptop 10");
+        panel.add(exportV2SavButton, "cell 1 5 1 1, growx");
+        panel.add(clearSlotButton, "cell 1 6 1 1, growx, gaptop 10");
     }
 
     public void openSavButton_actionPerformed() {

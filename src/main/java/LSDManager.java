@@ -21,7 +21,7 @@ public class LSDManager
 		//Validate frames that have preset sizes
 		//Pack frames that have useful preferred size info, e.g. from their layout
 		Frame frame = new Frame();
-		frame.validate();
+		frame.pack();
 		frame.setLocation(200,200);
 		frame.setVisible(true);
 	}

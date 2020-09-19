@@ -9,7 +9,6 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <!--
     <dependencies>
         <dependency>
             <groupId>com.miglayout</groupId>
@@ -17,7 +16,6 @@
             <version>3.7.4</version>
         </dependency>
     </dependencies>
-    -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
