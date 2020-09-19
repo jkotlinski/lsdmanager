@@ -371,6 +371,9 @@ public class LSDSavFile
             byte[] buffer = new byte[0x8000*4];
             int bytesRead = file.read(buffer);
             int blocksRead = bytesRead / blockSize;
+            if (blocksRead == 0) {
+                return false;
+            }
 
             if (blocksRead > freeBlockCount() || !has_free_slot())
             {
@@ -399,7 +402,7 @@ public class LSDSavFile
             int bufferIndex = 0;
 
             int nextBlockIdPtr = 0;
-            while ( blocksToWrite-- > 0 )
+            while (true)
             {
                 int blockId = getBlockIdOfFirstFreeBlock();
 
@@ -414,7 +417,19 @@ public class LSDSavFile
                 {
                     workRam[blockPtr++] = buffer[bufferIndex++];
                 }
+                if (--blocksToWrite == 0) {
+                    break;
+                }
                 nextBlockIdPtr = getNextBlockIdPtr(blockId);
+                if (nextBlockIdPtr == 0) {
+                    JOptionPane.showMessageDialog(null,
+                            "Song corrupted.",
+                            "Song load failed!",
+                            JOptionPane.ERROR_MESSAGE);
+                    file.close();
+                    clearSlot(freeSlot);
+                    return false;
+                }
             }
             file.close();
         }
@@ -439,9 +454,9 @@ public class LSDSavFile
         return workRam[activeFileSlot];
     }
 
-    private int getNextBlockIdPtr(int a_block )
+    private int getNextBlockIdPtr(int block)
     {
-        int ramPtr = blockStartPtr + blockSize * a_block;
+        int ramPtr = blockStartPtr + blockSize * block;
         int byteCounter = 0;
 
         while (byteCounter < blockSize)
@@ -477,7 +492,8 @@ public class LSDSavFile
             ramPtr++;
             byteCounter++;
         }
-        System.out.println("get_next_block_id_ptr returns 0");
+        // If the pointer to next block is missing, and this is not the last
+        // block of a song, the song is most likely corrupted.
         return 0;
     }
 
