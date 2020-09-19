@@ -481,7 +481,7 @@ public class LSDSavFile
         return 0;
     }
 
-    public void import_32kb_sav_to_work_ram(String a_file_path)
+    public void import32KbSavToWorkRam(String a_file_path)
     {
         RandomAccessFile file;
         try

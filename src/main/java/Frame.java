@@ -297,17 +297,19 @@ public class Frame extends JFrame implements ListSelectionListener {
     }
 
     public void importV2SavButton_actionPerformed() {
-        JFileChooser fileChooser = new JFileChooser(latestSavPath);
-        fileChooser.setFileFilter(new SAVFilter());
-        fileChooser.setDialogTitle(
-                "Import 32kByte .sav file to work memory");
-        int retVal = fileChooser.showOpenDialog(null);
-
-        if (JFileChooser.APPROVE_OPTION == retVal) {
-            file.import_32kb_sav_to_work_ram(
-                    fileChooser.getSelectedFile().getAbsoluteFile().toString());
-            workMemLabel.setText("Work memory updated.");
+        FileDialog fileDialog = new FileDialog(this,
+                "Import 32kByte .sav file to work memory",
+                FileDialog.LOAD);
+        fileDialog.setDirectory(latestSavPath);
+        fileDialog.setFile("*.sav");
+        fileDialog.setVisible(true);
+        String fileName = fileDialog.getFile();
+        if (fileName == null) {
+            return;
         }
+
+        file.import32KbSavToWorkRam(fileDialog.getDirectory() + fileName);
+        workMemLabel.setText("Work memory updated.");
     }
 
     public void exportV2SavButton_actionPerformed() {
