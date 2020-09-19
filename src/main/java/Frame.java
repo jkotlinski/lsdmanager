@@ -4,8 +4,6 @@ import java.awt.*;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.event.ListSelectionListener;
@@ -13,7 +11,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.*;
 import java.util.prefs.*;
 
-public class Frame extends JFrame implements ActionListener, ListSelectionListener {
+public class Frame extends JFrame implements ListSelectionListener {
     
     LSDSavFile file;
     String latestSavPath = "\\";
@@ -23,7 +21,7 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
     JButton clearSlotButton = new JButton();
     JButton exportLsdSngButton = new JButton();
     JButton openSavButton = new JButton();
-    JButton saveSavAsButton = new JButton();
+    JButton saveButton = new JButton();
     JProgressBar jRamUsageIndicator = new JProgressBar();
     JList<String> songList = new JList<>( new String[] { " " } );
     JScrollPane songs = new JScrollPane(songList);
@@ -55,23 +53,24 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
         addLsdSngButton.setToolTipText(
                 "Add compressed .lsdsng to file memory");
         addLsdSngButton.setText("Add .lsdsng...");
-        addLsdSngButton.addActionListener(this);
+        addLsdSngButton.addActionListener(e -> addLsdSngButton_actionPerformed());
         clearSlotButton.setEnabled(false);
         clearSlotButton.setToolTipText("Clear file memory slot");
         clearSlotButton.setText("Clear Slot");
-        clearSlotButton.addActionListener(this);
+        clearSlotButton.addActionListener(e -> clearSlotButton_actionPerformed());
         exportLsdSngButton.setEnabled(false);
-        exportLsdSngButton.setToolTipText(
-                "Export compressed .lsdsng from file memory");
+        exportLsdSngButton.setToolTipText("Export compressed .lsdsng from file memory");
         exportLsdSngButton.setText("Export .lsdsng...");
-        exportLsdSngButton.addActionListener(this);
+        exportLsdSngButton.addActionListener(e -> exportLsdSngButton_actionPerformed());
         songList.addListSelectionListener(this);
 
         openSavButton.setText("Open V3+ .SAV...");
-        openSavButton.addActionListener(this);
-        saveSavAsButton.setEnabled(false);
-        saveSavAsButton.setText("Save V3+ .SAV as...");
-        saveSavAsButton.addActionListener(this);
+        openSavButton.addActionListener(e -> openSavButton_actionPerformed());
+
+        saveButton.setEnabled(false);
+        saveButton.setText("Save V3+ .SAV as...");
+        saveButton.addActionListener(e -> save());
+
         jRamUsageIndicator.setString("");
         jRamUsageIndicator.setStringPainted(true);
 
@@ -85,29 +84,45 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
                         + "(will overwrite what's already there!!)");
         importV2SavButton.setActionCommand("Import V2 SAV...");
         importV2SavButton.setText("Import V2 .SAV...");
-        importV2SavButton.addActionListener(this);
+        importV2SavButton.addActionListener(e -> importV2SavButton_actionPerformed());
         exportV2SavButton.setEnabled(false);
         exportV2SavButton.setToolTipText(
                 "Export work memory to 32 kByte V2 .SAV");
         exportV2SavButton.setActionCommand("Export to V2 SAV...");
         exportV2SavButton.setText("Export V2 .SAV...");
-        exportV2SavButton.addActionListener(this);
+        exportV2SavButton.addActionListener(e -> exportV2SavButton_actionPerformed());
         workMemLabel.setText("Work memory empty.");
 
         java.awt.Container panel = this.getContentPane();
-        MigLayout layout = new MigLayout("wrap",
-                "[]8[]");
+        MigLayout layout = new MigLayout("wrap", "[]8[]");
         panel.setLayout(layout);
         panel.add(workMemLabel, "cell 0 0 1 1");
         panel.add(songs, "cell 0 1 1 8, growx, growy");
         panel.add(jRamUsageIndicator, "cell 0 9 1 1, growx");
         panel.add(openSavButton, "cell 1 0 1 1, growx");
-        panel.add(saveSavAsButton, "cell 1 1 1 1, growx");
+        panel.add(saveButton, "cell 1 1 1 1, growx");
         panel.add(addLsdSngButton, "cell 1 2 1 1, growx, gaptop 10");
         panel.add(exportLsdSngButton, "cell 1 3 1 1, growx");
         panel.add(importV2SavButton, "cell 1 4 1 1, growx, gaptop 10");
         panel.add(exportV2SavButton, "cell 1 5 1 1, growx");
         panel.add(clearSlotButton, "cell 1 6 1 1, growx, gaptop 10");
+    }
+
+    private void save() {
+        JFileChooser fileChooser = new JFileChooser(latestSavPath);
+        fileChooser.setFileFilter(new SAVFilter());
+        fileChooser.setDialogTitle("Save 128kByte V3+ .sav file");
+
+        int retVal = fileChooser.showSaveDialog(null);
+
+        if (JFileChooser.APPROVE_OPTION == retVal) {
+            String fileName = fileChooser.getSelectedFile()
+                    .getAbsoluteFile().toString();
+            if (!fileName.toUpperCase().endsWith(".SAV")) {
+                fileName += ".sav";
+            }
+            file.saveAs(fileName);
+        }
     }
 
     public void openSavButton_actionPerformed() {
@@ -141,7 +156,7 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
     private void enableAllButtons() {
         exportV2SavButton.setEnabled(true);
         openSavButton.setEnabled(true);
-        saveSavAsButton.setEnabled(true);
+        saveButton.setEnabled(true);
         addLsdSngButton.setEnabled(true);
         importV2SavButton.setEnabled(true);
 
@@ -286,23 +301,6 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
         }
     }
 
-    public void saveSavAsButton_actionPerformed() {
-        JFileChooser fileChooser = new JFileChooser(latestSavPath);
-        fileChooser.setFileFilter(new SAVFilter());
-        fileChooser.setDialogTitle("Save 128kByte V3+ .sav file");
-
-        int retVal = fileChooser.showSaveDialog(null);
-
-        if (JFileChooser.APPROVE_OPTION == retVal) {
-            String fileName = fileChooser.getSelectedFile()
-                    .getAbsoluteFile().toString();
-            if (!fileName.toUpperCase().endsWith(".SAV")) {
-                fileName += ".sav";
-            }
-            file.saveAs(fileName);
-        }
-    }
-
     public void exportV2SavButton_actionPerformed() {
         FileDialog fileDialog = new FileDialog(this,
             "Export work memory to 32kByte v2 .sav file",
@@ -324,25 +322,6 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
     public void savePreferences() {
         preferences.put(LATEST_SAV_PATH, latestSavPath);
         preferences.put(LATEST_SNG_PATH, latestSngPath);
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == exportV2SavButton)
-            exportV2SavButton_actionPerformed();
-        else if (e.getSource() == saveSavAsButton)
-            saveSavAsButton_actionPerformed();
-        else if (e.getSource() == importV2SavButton)
-            importV2SavButton_actionPerformed();
-        else if (e.getSource() == addLsdSngButton)
-            addLsdSngButton_actionPerformed();
-        else if (e.getSource() == exportLsdSngButton)
-            exportLsdSngButton_actionPerformed();
-        else if (e.getSource() == clearSlotButton)
-            clearSlotButton_actionPerformed();
-        else if (e.getSource() == openSavButton)
-            openSavButton_actionPerformed();
-        else
-            assert false : "unknown action event";
     }
 
     @Override
