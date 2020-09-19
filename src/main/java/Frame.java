@@ -225,7 +225,7 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
                         int overWrite = JOptionPane.showOptionDialog(
                                 this, "File \"" 
                                 + filename
-                                + "\" aready exists.\n"
+                                + "\" already exists.\n"
                                 + "Overwrite existing file?", "Warning",
                                 JOptionPane.YES_NO_CANCEL_OPTION,
                                 JOptionPane.WARNING_MESSAGE, null, options,
@@ -348,7 +348,7 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
         else if (e.getSource() == openSavButton)
             openSavButton_actionPerformed();
         else
-            assert false : "unknown actionevent";
+            assert false : "unknown action event";
     }
 
     @Override
