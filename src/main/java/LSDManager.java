@@ -18,12 +18,12 @@ public class LSDManager
 			}
 		}
 
-		Frame l_frame = new Frame();
 		//Validate frames that have preset sizes
 		//Pack frames that have useful preferred size info, e.g. from their layout
-		l_frame.validate();
-		l_frame.setLocation(200,200);
-		l_frame.setVisible(true);
+		Frame frame = new Frame();
+		frame.validate();
+		frame.setLocation(200,200);
+		frame.setVisible(true);
 	}
 
 }

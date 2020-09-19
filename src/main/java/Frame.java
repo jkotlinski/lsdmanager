@@ -13,9 +13,9 @@ import java.util.prefs.*;
 
 public class Frame extends JFrame implements ActionListener, ListSelectionListener {
     
-    LSDSavFile m_file;
-    String m_latest_sav_path = "\\";
-    String m_latest_sng_path = "\\";
+    LSDSavFile file;
+    String latestSavPath = "\\";
+    String latestSngPath = "\\";
     
     JButton addLsdSngButton = new JButton();
     JButton clearSlotButton = new JButton();
@@ -23,23 +23,23 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
     JButton openSavButton = new JButton();
     JButton saveSavAsButton = new JButton();
     JProgressBar jRamUsageIndicator = new JProgressBar();
-    JList<String> jSongSlotList = new JList<>();
-    JScrollPane jScrollPane1 = new JScrollPane(jSongSlotList);
+    JList<String> songList = new JList<>();
+    JScrollPane songs = new JScrollPane(songList);
     JButton importV2SavButton = new JButton();
     JButton exportV2SavButton = new JButton();
     JLabel workMemLabel = new JLabel();
     
-    Preferences prefs;
+    Preferences preferences;
     private static final String LATEST_SAV_PATH = "latest_sav_path";
     private static final String LATEST_SNG_PATH = "latest_sng_path";
     private static final long serialVersionUID = 1279298060794170168L;
 
     public Frame() {
-        m_file = new LSDSavFile();
+        file = new LSDSavFile();
 
-        prefs = Preferences.userNodeForPackage(Frame.class);
-        m_latest_sav_path = prefs.get(LATEST_SAV_PATH, m_latest_sav_path);
-        m_latest_sng_path = prefs.get(LATEST_SNG_PATH, m_latest_sng_path);
+        preferences = Preferences.userNodeForPackage(Frame.class);
+        latestSavPath = preferences.get(LATEST_SAV_PATH, latestSavPath);
+        latestSngPath = preferences.get(LATEST_SNG_PATH, latestSngPath);
         
         try {
             jbInit();
@@ -66,7 +66,7 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
                 "Export compressed .lsdsng from file memory");
         exportLsdSngButton.setText("Export .lsdsng...");
         exportLsdSngButton.addActionListener(this);
-        jSongSlotList.addListSelectionListener(this);
+        songList.addListSelectionListener(this);
 
         openSavButton.setBounds(new Rectangle(198, 11, 139, 36));
         openSavButton.setPreferredSize(new Dimension(99, 20));
@@ -86,7 +86,7 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
         this.setResizable(false);
         this.setTitle("LSDManager v1.0");
 
-        jScrollPane1.setBounds(new Rectangle(11, 35, 178, 236));
+        songs.setBounds(new Rectangle(11, 35, 178, 236));
         importV2SavButton.setBounds(new Rectangle(197, 195, 139, 31));
         importV2SavButton.setEnabled(false);
         importV2SavButton.setToolTipText(
@@ -104,7 +104,7 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
         exportV2SavButton.addActionListener(this);
         workMemLabel.setText("Work memory empty.");
         workMemLabel.setBounds(new Rectangle(11, 11, 178, 21));
-        this.getContentPane().add(jScrollPane1);
+        this.getContentPane().add(songs);
         this.getContentPane().add(openSavButton);
         this.getContentPane().add(saveSavAsButton);
         this.getContentPane().add(addLsdSngButton);
@@ -117,23 +117,23 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
     }
 
     public void openSavButton_actionPerformed() {
-        JFileChooser l_file_chooser = new JFileChooser(m_latest_sav_path);
-        l_file_chooser.setFileFilter(new SAVFilter());
-        l_file_chooser.setDialogTitle("Open 128kByte V3+ .sav");
+        JFileChooser fileChooser = new JFileChooser(latestSavPath);
+        fileChooser.setFileFilter(new SAVFilter());
+        fileChooser.setDialogTitle("Open 128kByte V3+ .sav");
 
-        int l_ret_val = l_file_chooser.showOpenDialog(null);
+        int retVal = fileChooser.showOpenDialog(null);
 
-        if (JFileChooser.APPROVE_OPTION == l_ret_val) {
-            m_latest_sav_path = l_file_chooser.getSelectedFile().getAbsoluteFile()
+        if (JFileChooser.APPROVE_OPTION == retVal) {
+            latestSavPath = fileChooser.getSelectedFile().getAbsoluteFile()
                     .getParent();
-            if (m_latest_sng_path.equals("\\"))
-                m_latest_sng_path = m_latest_sav_path;
+            if (latestSngPath.equals("\\"))
+                latestSngPath = latestSavPath;
 
-            boolean l_fileLoadedOk = this.m_file.loadFromSav(l_file_chooser
+            boolean fileLoadedOk = this.file.loadFromSav(fileChooser
                     .getSelectedFile().getAbsoluteFile().toString());
 
-            if (l_fileLoadedOk) {
-                m_file.populate_slot_list(jSongSlotList);
+            if (fileLoadedOk) {
+                file.populateSlotList(songList);
                 workMemLabel.setText("Loaded work+file memory.");
                 enable_all_buttons();
                 SavePrefs();
@@ -150,74 +150,74 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
         addLsdSngButton.setEnabled(true);
         importV2SavButton.setEnabled(true);
 
-        update_ram_usage_indicator();
+        updateRamUsageIndicator();
     }
 
     public void clearSlotButton_actionPerformed() {
 
-        if (jSongSlotList.isSelectionEmpty()) {
+        if (songList.isSelectionEmpty()) {
             JOptionPane.showMessageDialog(this, "Please select a song!",
                     "No song selected!", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        int[] l_slots = jSongSlotList.getSelectedIndices();
+        int[] slots = songList.getSelectedIndices();
         
-        for (int l_slot : l_slots)
-            m_file.clear_slot(l_slot);
-        m_file.populate_slot_list(jSongSlotList);
-        update_ram_usage_indicator();
+        for (int slot : slots)
+            file.clearSlot(slot);
+        file.populateSlotList(songList);
+        updateRamUsageIndicator();
     }
 
-    private void update_ram_usage_indicator() {
-        jRamUsageIndicator.setMaximum(m_file.getTotalBlockCount());
-        jRamUsageIndicator.setValue(m_file.get_used_blocks());
+    private void updateRamUsageIndicator() {
+        jRamUsageIndicator.setMaximum(file.totalBlockCount());
+        jRamUsageIndicator.setValue(file.usedBlockCount());
         jRamUsageIndicator.setString("File mem. used: "
-                + m_file.get_used_blocks() + "/" + m_file.getTotalBlockCount());
+                + file.usedBlockCount() + "/" + file.totalBlockCount());
     }
 
     public void exportLsdSngButton_actionPerformed() {
-        if (jSongSlotList.isSelectionEmpty()) {
+        if (songList.isSelectionEmpty()) {
             JOptionPane.showMessageDialog(this, "Please select a song!",
                     "No song selected!", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        int[] l_slots = jSongSlotList.getSelectedIndices();
+        int[] slots = songList.getSelectedIndices();
 
-        JFileChooser l_file_chooser = new JFileChooser(m_latest_sng_path);
-        if (l_slots.length == 1) {
-            l_file_chooser.setFileFilter(new LsdSngFilter());
-            l_file_chooser.setDialogTitle(
+        JFileChooser fileChooser = new JFileChooser(latestSngPath);
+        if (slots.length == 1) {
+            fileChooser.setFileFilter(new LsdSngFilter());
+            fileChooser.setDialogTitle(
                     "Export selected slot to compressed .lsdsng file");
-            int l_ret_val = l_file_chooser.showSaveDialog(null);
+            int ret = fileChooser.showSaveDialog(null);
 
-            if (JFileChooser.APPROVE_OPTION == l_ret_val) {
-                m_latest_sng_path = l_file_chooser.getSelectedFile()
+            if (JFileChooser.APPROVE_OPTION == ret) {
+                latestSngPath = fileChooser.getSelectedFile()
                         .getAbsoluteFile().getParent();
-                String l_file_name = l_file_chooser.getSelectedFile()
+                String l_file_name = fileChooser.getSelectedFile()
                         .getAbsoluteFile().toString();
                 if (!l_file_name.toUpperCase().endsWith(".LSDSNG")) {
                     l_file_name += ".lsdsng";
                 }
 
-                m_file.export_song_to_file(l_slots[0], l_file_name);
+                file.exportSongToFile(slots[0], l_file_name);
                 SavePrefs();
             }
-        } else if (l_slots.length > 1) {
-            l_file_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            l_file_chooser.setDialogTitle(
+        } else if (slots.length > 1) {
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fileChooser.setDialogTitle(
                     "Batch export selected slots to compressed .lsdsng files");
-            int ret_val = l_file_chooser.showDialog(null, "Choose Directory");
+            int ret_val = fileChooser.showDialog(null, "Choose Directory");
             
             if (JFileChooser.APPROVE_OPTION == ret_val) {
-                m_latest_sng_path = l_file_chooser.getSelectedFile()
+                latestSngPath = fileChooser.getSelectedFile()
                         .getAbsolutePath();
                 SavePrefs();
 
-                for (int slot : l_slots) {
-                    String filename = m_file.get_file_name(slot).toLowerCase()
-                            + "-" + m_file.get_version(slot) + ".lsdsng";
-                    String path = m_latest_sng_path + File.separator + filename;
+                for (int slot : slots) {
+                    String filename = file.getFileName(slot).toLowerCase()
+                            + "-" + file.version(slot) + ".lsdsng";
+                    String path = latestSngPath + File.separator + filename;
                     String[] options = { "Yes", "No", "Cancel" };
                     File f = new File(path);
                     if (f.exists()) {
@@ -247,8 +247,8 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
                         } else if (overWrite == JOptionPane.CANCEL_OPTION)
                             return;
                     }
-                    if (m_file.get_blocks_used(slot) > 0) {
-                        m_file.export_song_to_file(slot, path);
+                    if (file.getBlocksUsed(slot) > 0) {
+                        file.exportSongToFile(slot, path);
                     }
                 }
             }
@@ -256,22 +256,21 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
     }
 
     public void addLsdSngButton_actionPerformed() {
-        JFileChooser l_file_chooser = new JFileChooser(m_latest_sng_path);
-        l_file_chooser.setFileFilter(new LsdSngFilter());
-        l_file_chooser.setMultiSelectionEnabled(true);
-        l_file_chooser.setDialogTitle("Add compressed .lsdsng to file memory");
-        int l_ret_val = l_file_chooser.showOpenDialog(null);
+        JFileChooser fileChooser = new JFileChooser(latestSngPath);
+        fileChooser.setFileFilter(new LsdSngFilter());
+        fileChooser.setMultiSelectionEnabled(true);
+        fileChooser.setDialogTitle("Add compressed .lsdsng to file memory");
 
-        if (JFileChooser.APPROVE_OPTION == l_ret_val) {
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog(null)) {
             boolean success = true;
-            for (File f : l_file_chooser.getSelectedFiles()) {
-                success &= m_file.add_song_from_file(
+            for (File f : fileChooser.getSelectedFiles()) {
+                success &= file.addSongFromFile(
                         f.getAbsoluteFile().toString());
-                m_file.populate_slot_list(jSongSlotList);
+                file.populateSlotList(songList);
             }
-            m_latest_sng_path = l_file_chooser.getSelectedFiles()[0]
+            latestSngPath = fileChooser.getSelectedFiles()[0]
                     .getAbsoluteFile().getParent();
-            update_ram_usage_indicator();
+            updateRamUsageIndicator();
             if (success) {
                 SavePrefs();
             }
@@ -279,21 +278,21 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
     }
 
     public void importV2SavButton_actionPerformed() {
-        JFileChooser l_file_chooser = new JFileChooser(m_latest_sav_path);
+        JFileChooser l_file_chooser = new JFileChooser(latestSavPath);
         l_file_chooser.setFileFilter(new SAVFilter());
         l_file_chooser.setDialogTitle(
                 "Import 32kByte .sav file to work memory");
         int l_ret_val = l_file_chooser.showOpenDialog(null);
 
         if (JFileChooser.APPROVE_OPTION == l_ret_val) {
-            m_file.import_32kb_sav_to_work_ram(
+            file.import_32kb_sav_to_work_ram(
                     l_file_chooser.getSelectedFile().getAbsoluteFile().toString());
             workMemLabel.setText("Work memory updated.");
         }
     }
 
     public void saveSavAsButton_actionPerformed() {
-        JFileChooser l_file_chooser = new JFileChooser(m_latest_sav_path);
+        JFileChooser l_file_chooser = new JFileChooser(latestSavPath);
         l_file_chooser.setFileFilter(new SAVFilter());
         l_file_chooser.setDialogTitle("Save 128kByte V3+ .sav file");
 
@@ -305,31 +304,29 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
             if (!l_file_name.toUpperCase().endsWith(".SAV")) {
                 l_file_name += ".sav";
             }
-            m_file.save_as(l_file_name);
+            file.saveAs(l_file_name);
         }
     }
 
     public void exportV2SavButton_actionPerformed() {
-        JFileChooser l_file_chooser = new JFileChooser(m_latest_sav_path);
-        l_file_chooser.setFileFilter(new SAVFilter());
-        l_file_chooser
-                .setDialogTitle("Export work memory to 32kByte v2 .sav file");
+        JFileChooser fileChooser = new JFileChooser(latestSavPath);
+        fileChooser.setFileFilter(new SAVFilter());
+        fileChooser.setDialogTitle("Export work memory to 32kByte v2 .sav file");
 
-        int l_ret_val = l_file_chooser.showSaveDialog(null);
 
-        if (JFileChooser.APPROVE_OPTION == l_ret_val) {
-            String l_file_name = l_file_chooser.getSelectedFile()
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showSaveDialog(null)) {
+            String fileName = fileChooser.getSelectedFile()
                     .getAbsoluteFile().toString();
-            if (!l_file_name.toUpperCase().endsWith(".SAV")) {
-                l_file_name += ".sav";
+            if (!fileName.toUpperCase().endsWith(".SAV")) {
+                fileName += ".sav";
             }
-            m_file.save_work_memory_as(l_file_name);
+            file.saveWorkMemoryAs(fileName);
         }
     }
 
     public void SavePrefs() {
-        prefs.put(LATEST_SAV_PATH, m_latest_sav_path);
-        prefs.put(LATEST_SNG_PATH, m_latest_sng_path);
+        preferences.put(LATEST_SAV_PATH, latestSavPath);
+        preferences.put(LATEST_SNG_PATH, latestSngPath);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -353,7 +350,7 @@ public class Frame extends JFrame implements ActionListener, ListSelectionListen
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        boolean enable = !jSongSlotList.isSelectionEmpty();
+        boolean enable = !songList.isSelectionEmpty();
         clearSlotButton.setEnabled(enable);
         exportLsdSngButton.setEnabled(enable);
     }

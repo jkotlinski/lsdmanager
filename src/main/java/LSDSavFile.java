@@ -3,73 +3,67 @@ import javax.swing.*;
 
 public class LSDSavFile
 {
-    final int g_block_size = 0x200;
-    final int g_bank_size = 0x8000;
-    final int g_bank_count = 4;
-    final int g_sav_file_size = g_bank_size * g_bank_count;
-    final int g_slot_count = 0x20;
-    final int g_file_name_length = 8;
+    final int blockSize = 0x200;
+    final int bankSize = 0x8000;
+    final int bankCount = 4;
+    final int savFileSize = bankSize * bankCount;
+    final int slotCount = 0x20;
+    final int fileNameLength = 8;
 
-    final int g_file_name_start_ptr = 0x8000;
-    final int g_file_version_start_ptr = 0x8100;
-    final int g_block_alloc_table_start_ptr = 0x8141;
-    final int g_block_start_ptr = 0x8200;
-    final int g_active_file_slot = 0x8140;
-    final char g_empty_slot_value = (char) 0xff;
+    final int fileNameStartPtr = 0x8000;
+    final int fileVersionStartPtr = 0x8100;
+    final int blockAllocTableStartPtr = 0x8141;
+    final int blockStartPtr = 0x8200;
+    final int activeFileSlot = 0x8140;
+    final char emptySlotValue = (char) 0xff;
 
-    boolean g_is_64_kb = false;
-    boolean g_is_64_kb_has_been_set = false;
+    boolean is64kb = false;
+    boolean is64kbHasBeenSet = false;
 
-    byte[] m_work_ram;
-    boolean m_file_is_loaded = false;
+    byte[] workRam;
+    boolean fileIsLoaded = false;
 
     public LSDSavFile()
     {
-        m_work_ram = new byte[g_sav_file_size];
+        workRam = new byte[savFileSize];
     }
 
-    private boolean isSixtyfourKbRam()
+    private boolean isSixtyFourKbRam()
     {
-        if ( !m_file_is_loaded ) return false;
-        if ( g_is_64_kb_has_been_set ) return g_is_64_kb;
+        if (!fileIsLoaded) return false;
+        if (is64kbHasBeenSet) return is64kb;
 
-        for ( int i = 0; i < 0x10000; ++i )
+        for (int i = 0; i < 0x10000; ++i)
         {
-            if ( m_work_ram[i] != m_work_ram[0x10000+i] )
+            if (workRam[i] != workRam[0x10000 + i])
             {
-                g_is_64_kb = false;
-                g_is_64_kb_has_been_set = true;
+                is64kb = false;
+                is64kbHasBeenSet = true;
                 return false;
             }
         }
-        g_is_64_kb = true;
-        g_is_64_kb_has_been_set = true;
+        is64kb = true;
+        is64kbHasBeenSet = true;
         return true;
     }
 
-    public int getTotalBlockCount()
+    public int totalBlockCount()
     {
-        if ( isSixtyfourKbRam() )
-        {
-            return 0xbf - 0x80;
-        }
-        else
-        {
-            return 0xbf;  // Almost 0xc0, except first block for FAT.
-        }
+        // FAT takes one block.
+        return isSixtyFourKbRam() ? 0xbf - 0x80 : 0xbf;
     }
 
-    public void save_as ( String a_file_path )
+    public void saveAs(String filePath )
     {
         try
         {
-            RandomAccessFile l_file = new RandomAccessFile ( a_file_path, "rw" );
-            if (isSixtyfourKbRam())
+            RandomAccessFile file = new RandomAccessFile(filePath, "rw");
+            if (isSixtyFourKbRam())
             {
-                System.arraycopy(m_work_ram, 0, m_work_ram, 65536, 0x10000);
+                System.arraycopy(workRam, 0, workRam, 65536, 0x10000);
             }
-            l_file.write(m_work_ram);
-            l_file.close();
+            file.write(workRam);
+            file.close();
         }
         catch (Exception e)
         {
@@ -77,119 +71,115 @@ public class LSDSavFile
         }
     }
 
-    public void save_work_memory_as(String a_file_path)
+    public void saveWorkMemoryAs(String filePath)
     {
         try
         {
-            RandomAccessFile l_file = new RandomAccessFile ( a_file_path, "rw" );
-            l_file.write(m_work_ram, 0, g_bank_size );
-            l_file.close();
+            RandomAccessFile file = new RandomAccessFile(filePath, "rw");
+            file.write(workRam, 0, bankSize);
+            file.close();
         }
-        catch ( Exception e )
+        catch (Exception e)
         {
             e.printStackTrace();
         }
     }
 
-    public void clear_slot(int a_index)
+    public void clearSlot(int index)
     {
-        int l_ram_ptr = g_block_alloc_table_start_ptr;
-        int l_block = 0;
+        int ramPtr = blockAllocTableStartPtr;
+        int block = 0;
 
-        while (l_block < getTotalBlockCount() )
+        while (block < totalBlockCount() )
         {
-            int l_table_value = m_work_ram[l_ram_ptr];
-            if (a_index == l_table_value)
+            int tableValue = workRam[ramPtr];
+            if (index == tableValue)
             {
-                m_work_ram[l_ram_ptr] = (byte) g_empty_slot_value;
+                workRam[ramPtr] = (byte) emptySlotValue;
             }
-            l_ram_ptr++;
-            l_block++;
+            ramPtr++;
+            block++;
         }
 
-        clear_file_name(a_index);
-        clear_file_version(a_index);
+        clearFileName(index);
+        clearFileVersion(index);
 
-        if ( a_index == get_active_file_slot() )
+        if (index == getActiveFileSlot())
         {
-            clear_active_file_slot();
+            clearActiveFileSlot();
         }
     }
 
-    public int get_blocks_used ( int a_slot )
+    public int getBlocksUsed(int slot)
     {
-        int l_ram_ptr = g_block_alloc_table_start_ptr;
-        int l_block = 0;
-        int l_block_count = 0;
+        int ramPtr = blockAllocTableStartPtr;
+        int block = 0;
+        int blockCount = 0;
 
-        while (l_block < getTotalBlockCount())
+        while (block++ < totalBlockCount())
         {
-            int l_table_value = m_work_ram[l_ram_ptr];
-            if ( a_slot == l_table_value)
+            if (slot == workRam[ramPtr++])
             {
-                l_block_count++;
+                blockCount++;
             }
-            l_ram_ptr++;
-            l_block++;
         }
-        return l_block_count;
+        return blockCount;
     }
 
-    private void clear_file_name(int a_index)
+    private void clearFileName(int index)
     {
-        m_work_ram[g_file_name_start_ptr +
-            g_file_name_length * a_index] = (byte) 0;
+        workRam[fileNameStartPtr + fileNameLength * index] = (byte) 0;
     }
 
-    private void clear_file_version(int a_index)
+    private void clearFileVersion(int index)
     {
-        m_work_ram[g_file_version_start_ptr + a_index] = (byte) 0;
+        workRam[fileVersionStartPtr + index] = (byte) 0;
     }
 
-    public int get_used_blocks()
+    public int usedBlockCount()
     {
-        return getTotalBlockCount() - get_free_blocks();
+        return totalBlockCount() - freeBlockCount();
     }
 
     public boolean has_free_slot()
     {
-        int l_file_name_ptr = g_file_name_start_ptr;
-        for ( int l_slot = 0; l_slot < g_slot_count; l_slot++ )
+        int fileNamePtr = fileNameStartPtr;
+        for (int slot = 0; slot < slotCount; slot++ )
         {
-            if ( 0 == m_work_ram[l_file_name_ptr] )
+            if (0 == workRam[fileNamePtr])
             {
                 return true;
             }
-            l_file_name_ptr += g_file_name_length;
+            fileNamePtr += fileNameLength;
         }
         System.out.println("no free slot:(");
         return false;
     }
 
     public byte get_free_slot() throws Exception {
-        for (byte slot = 0; slot < g_slot_count; slot++) {
-            if (0 == get_blocks_used(slot)) {
+        for (byte slot = 0; slot < slotCount; slot++) {
+            if (0 == getBlocksUsed(slot)) {
                 return slot;
             }
         }
         throw new Exception("No free slot found");
     }
 
-    public int get_block_id_of_first_free_block() throws Exception
+    public int getBlockIdOfFirstFreeBlock() throws Exception
     {
-        int l_block_alloc_table_ptr = g_block_alloc_table_start_ptr;
-        int l_block = 0;
+        int blockAllocTableStartPtr = this.blockAllocTableStartPtr;
+        int block = 0;
 
-        while (l_block < getTotalBlockCount())
+        while (block < totalBlockCount())
         {
-            int l_table_value = m_work_ram[l_block_alloc_table_ptr++];
+            int l_table_value = workRam[blockAllocTableStartPtr++];
             if (l_table_value < 0 || l_table_value > 0x1f)
             {
-                return l_block;
+                return block;
             }
-            l_block++;
+            block++;
         }
-        throw new Exception ("No free block found");
+        throw new Exception("No free block found");
     }
 
     /*
@@ -208,33 +198,33 @@ public class LSDSavFile
     }
     */
 
-    public int get_free_blocks()
+    public int freeBlockCount()
     {
-        int l_ram_ptr = g_block_alloc_table_start_ptr;
-        int l_block = 0;
-        int l_free_block_count = 0;
+        int ramPtr = blockAllocTableStartPtr;
+        int block = 0;
+        int freeBlockCount = 0;
 
-        while (l_block < getTotalBlockCount())
+        while (block < totalBlockCount())
         {
-            int l_table_value = m_work_ram[l_ram_ptr++];
-            if (l_table_value < 0 || l_table_value > 0x1f)
+            int tableValue = workRam[ramPtr++];
+            if (tableValue < 0 || tableValue > 0x1f)
             {
-                l_free_block_count++;
+                freeBlockCount++;
             }
-            l_block++;
+            block++;
         }
-        return l_free_block_count;
+        return freeBlockCount;
     }
 
-    public boolean loadFromSav(String a_file_path)
+    public boolean loadFromSav(String filePath)
     {
-        RandomAccessFile l_sav_file;
-        int l_read_bytes;
+        RandomAccessFile savFile;
+        int readBytes;
 
         try
         {
-            l_sav_file = new RandomAccessFile(a_file_path, "r");
-            l_read_bytes = l_sav_file.read(m_work_ram);
+            savFile = new RandomAccessFile(filePath, "r");
+            readBytes = savFile.read(workRam);
         }
         catch (Exception e)
         {
@@ -242,128 +232,124 @@ public class LSDSavFile
             return false;
         }
 
-        if (l_read_bytes > g_sav_file_size)
+        if (readBytes > savFileSize)
         {
             return false;
         }
 
-        g_is_64_kb_has_been_set = false;
-        m_file_is_loaded = true;
+        is64kbHasBeenSet = false;
+        fileIsLoaded = true;
         return true;
     }
 
-    public void populate_slot_list(JList<String> a_slot_list) {
-        String[] l_slot_string_list = new String[g_slot_count];
-        a_slot_list.removeAll();
+    public void populateSlotList(JList<String> slotList) {
+        String[] slotStringList = new String[slotCount];
+        slotList.removeAll();
 
-        for (int l_slot = 0; l_slot < g_slot_count; l_slot++) {
-            int blocks_used = get_blocks_used(l_slot);
-            String l_slot_string = l_slot + 1 + ". ";
+        for (int slot = 0; slot < slotCount; slot++) {
+            int blocksUsed = getBlocksUsed(slot);
+            String slotString = slot + 1 + ". ";
 
-            if (blocks_used > 0) {
-                l_slot_string += get_file_name(l_slot);
-                l_slot_string += "." + get_version(l_slot);
-                l_slot_string += " " + blocks_used;
+            if (blocksUsed > 0) {
+                slotString += getFileName(slot);
+                slotString += "." + version(slot);
+                slotString += " " + blocksUsed;
             }
 
-            l_slot_string_list[l_slot] = l_slot_string;
+            slotStringList[slot] = slotString;
         }
 
-        a_slot_list.setListData(l_slot_string_list);
+        slotList.setListData(slotStringList);
     }
 
-    private static int convertLsdCharToAscii ( int a_char )
+    private static int convertLsdCharToAscii(int ch)
     {
-        if ( a_char >= 65 && a_char <= (65+25) )
+        if (ch >= 65 && ch <= (65+25))
         {
             //char
-            return 'A' + a_char - 65;
+            return 'A' + ch - 65;
         }
-        if ( a_char >= 48 && a_char < 58 )
+        if (ch >= 48 && ch < 58)
         {
             //decimal number
-            return '0' + a_char - 48;
+            return '0' + ch - 48;
         }
-        if ( 0 == a_char )
-        {
-            return 0;
-        }
-        return ' ';
+        return 0 == ch ? 0 : ' ';
     }
 
-    public String get_file_name(int l_slot)
+    public String getFileName(int slot)
     {
-        StringBuilder l_string = new StringBuilder();
-        int l_ram_ptr = g_file_name_start_ptr + g_file_name_length * l_slot;
-        boolean l_end_of_file_name = false;
-        for (int l_file_name_pos = 0;
-                l_file_name_pos < 8;
-                l_file_name_pos++)
+        StringBuilder sb = new StringBuilder();
+        int ramPtr = fileNameStartPtr + fileNameLength * slot;
+        boolean endOfFileName = false;
+        for (int fileNamePos = 0;
+                fileNamePos < 8;
+                fileNamePos++)
         {
-            if (!l_end_of_file_name)
+            if (!endOfFileName)
             {
-                char l_char = (char) convertLsdCharToAscii((char)
-                        m_work_ram[l_ram_ptr]);
-                if (0 == l_char)
+                char ch = (char) convertLsdCharToAscii((char)
+                        workRam[ramPtr]);
+                if (0 == ch)
                 {
-                    l_end_of_file_name = true;
+                    endOfFileName = true;
                 }
                 else
                 {
-                    l_string.append(l_char);
+                    sb.append(ch);
                 }
             }
-            l_ram_ptr++;
+            ramPtr++;
         }
-        return l_string.toString();
+        return sb.toString();
     }
 
-    public String get_version(int slot)
+    public String version(int slot)
     {
-        int ram_ptr = g_file_version_start_ptr + slot;
-        String version = Integer.toHexString(m_work_ram[ram_ptr]);
+        int ramPtr = fileVersionStartPtr + slot;
+        String version = Integer.toHexString(workRam[ramPtr]);
         return version.substring(Math.max(version.length() - 2, 0)).toUpperCase();
     }
 
-    public void export_song_to_file(int a_slot, String a_file_path)
+    public void exportSongToFile(int slot, String filePath)
     {
-        if (a_slot < 0 || a_slot > 0x1f) {
+        if (slot < 0 || slot > 0x1f) {
             return;
         }
-        RandomAccessFile m_file;
+        RandomAccessFile file;
         try
         {
-            m_file = new RandomAccessFile(a_file_path, "rw");
+            file = new RandomAccessFile(filePath, "rw");
 
-            int l_file_name_ptr = g_file_name_start_ptr + a_slot * g_file_name_length;
-            m_file.writeByte(m_work_ram[l_file_name_ptr++]);
-            m_file.writeByte(m_work_ram[l_file_name_ptr++]);
-            m_file.writeByte(m_work_ram[l_file_name_ptr++]);
-            m_file.writeByte(m_work_ram[l_file_name_ptr++]);
-            m_file.writeByte(m_work_ram[l_file_name_ptr++]);
-            m_file.writeByte(m_work_ram[l_file_name_ptr++]);
-            m_file.writeByte(m_work_ram[l_file_name_ptr++]);
-            m_file.writeByte(m_work_ram[l_file_name_ptr]);
+            int fileNamePtr = fileNameStartPtr + slot * fileNameLength;
+            file.writeByte(workRam[fileNamePtr++]);
+            file.writeByte(workRam[fileNamePtr++]);
+            file.writeByte(workRam[fileNamePtr++]);
+            file.writeByte(workRam[fileNamePtr++]);
+            file.writeByte(workRam[fileNamePtr++]);
+            file.writeByte(workRam[fileNamePtr++]);
+            file.writeByte(workRam[fileNamePtr++]);
+            file.writeByte(workRam[fileNamePtr]);
 
-            int l_file_version_ptr = g_file_version_start_ptr + a_slot;
-            m_file.writeByte(m_work_ram[l_file_version_ptr]);
+            int fileVersionPtr = fileVersionStartPtr + slot;
+            file.writeByte(workRam[fileVersionPtr]);
 
-            int l_block_id = 0;
-            int l_block_alloc_table_ptr = g_block_alloc_table_start_ptr;
+            int blockId = 0;
+            int blockAllocTablePtr = blockAllocTableStartPtr;
 
-            while ( l_block_id < getTotalBlockCount() )
+            while (blockId < totalBlockCount())
             {
-                if ( a_slot == m_work_ram[l_block_alloc_table_ptr++] )
+                if (slot == workRam[blockAllocTablePtr++])
                 {
-                    int l_block_ptr = g_block_start_ptr + l_block_id * g_block_size;
-                    for ( int l_byte_index = 0; l_byte_index < g_block_size; l_byte_index++ )
+                    int blockPtr = blockStartPtr + blockId * blockSize;
+                    for (int byteIndex = 0; byteIndex < blockSize; byteIndex++)
                     {
-                        m_file.writeByte(m_work_ram[l_block_ptr++]);
+                        file.writeByte(workRam[blockPtr++]);
                     }
                 }
-                l_block_id++;
+                blockId++;
             }
-            m_file.close();
+            file.close();
         }
         catch (Exception e)
         {
@@ -371,22 +357,22 @@ public class LSDSavFile
         }
     }
 
-    public boolean add_song_from_file(String a_file_path)
+    public boolean addSongFromFile(String filePath)
     {
-        RandomAccessFile m_file;
+        RandomAccessFile file;
         try
         {
-            m_file = new RandomAccessFile(a_file_path, "r");
+            file = new RandomAccessFile(filePath, "r");
 
-            byte[] l_file_name = new byte[8];
-            m_file.read(l_file_name);
-            byte l_file_version = m_file.readByte();
+            byte[] fileName = new byte[8];
+            file.read(fileName);
+            byte fileVersion = file.readByte();
 
-            byte[] l_buffer = new byte[0x8000*4];
-            int l_bytes_read = m_file.read(l_buffer);
-            int l_blocks_read = l_bytes_read / g_block_size;
+            byte[] buffer = new byte[0x8000*4];
+            int bytesRead = file.read(buffer);
+            int blocksRead = bytesRead / blockSize;
 
-            if ( l_blocks_read > get_free_blocks() || !has_free_slot() )
+            if (blocksRead > freeBlockCount() || !has_free_slot())
             {
                 JOptionPane.showMessageDialog(null,
                         "Not enough free blocks or song slots!",
@@ -395,42 +381,42 @@ public class LSDSavFile
                 return false;
             }
 
-            byte l_free_slot = get_free_slot();
-            int l_file_name_ptr = g_file_name_start_ptr + l_free_slot * g_file_name_length;
-            m_work_ram[l_file_name_ptr++] = l_file_name[0];
-            m_work_ram[l_file_name_ptr++] = l_file_name[1];
-            m_work_ram[l_file_name_ptr++] = l_file_name[2];
-            m_work_ram[l_file_name_ptr++] = l_file_name[3];
-            m_work_ram[l_file_name_ptr++] = l_file_name[4];
-            m_work_ram[l_file_name_ptr++] = l_file_name[5];
-            m_work_ram[l_file_name_ptr++] = l_file_name[6];
-            m_work_ram[l_file_name_ptr] = l_file_name[7];
+            byte freeSlot = get_free_slot();
+            int fileNamePtr = fileNameStartPtr + freeSlot * fileNameLength;
+            workRam[fileNamePtr++] = fileName[0];
+            workRam[fileNamePtr++] = fileName[1];
+            workRam[fileNamePtr++] = fileName[2];
+            workRam[fileNamePtr++] = fileName[3];
+            workRam[fileNamePtr++] = fileName[4];
+            workRam[fileNamePtr++] = fileName[5];
+            workRam[fileNamePtr++] = fileName[6];
+            workRam[fileNamePtr] = fileName[7];
 
-            int l_file_version_ptr = g_file_version_start_ptr + l_free_slot;
-            m_work_ram[l_file_version_ptr] = l_file_version;
+            int fileVersionPtr = fileVersionStartPtr + freeSlot;
+            workRam[fileVersionPtr] = fileVersion;
 
-            int l_blocks_to_write = l_blocks_read;
-            int l_buffer_index = 0;
+            int blocksToWrite = blocksRead;
+            int bufferIndex = 0;
 
-            int l_next_block_id_ptr = 0;
-            while ( l_blocks_to_write-- > 0 )
+            int nextBlockIdPtr = 0;
+            while ( blocksToWrite-- > 0 )
             {
-                int l_block_id = get_block_id_of_first_free_block();
+                int blockId = getBlockIdOfFirstFreeBlock();
 
-                if ( 0 != l_next_block_id_ptr )
+                if (0 != nextBlockIdPtr)
                 {
                     //add one to compensate for unused FAT block
-                    m_work_ram[l_next_block_id_ptr] = (byte)(l_block_id+1);
+                    workRam[nextBlockIdPtr] = (byte)(blockId+1);
                 }
-                m_work_ram[g_block_alloc_table_start_ptr + l_block_id] = l_free_slot;
-                int l_block_ptr = g_block_start_ptr + l_block_id * g_block_size;
-                for ( int l_byte = 0; l_byte < g_block_size; l_byte++ )
+                workRam[blockAllocTableStartPtr + blockId] = freeSlot;
+                int blockPtr = blockStartPtr + blockId * blockSize;
+                for (int block = 0; block < blockSize; block++)
                 {
-                    m_work_ram[l_block_ptr++] = l_buffer[l_buffer_index++];
+                    workRam[blockPtr++] = buffer[bufferIndex++];
                 }
-                l_next_block_id_ptr = get_next_block_id_ptr ( l_block_id );
+                nextBlockIdPtr = getNextBlockIdPtr(blockId);
             }
-            m_file.close();
+            file.close();
         }
         catch (Exception e)
         {
@@ -443,53 +429,53 @@ public class LSDSavFile
         return true;
     }
 
-    private void clear_active_file_slot()
+    private void clearActiveFileSlot()
     {
-        m_work_ram[g_active_file_slot] = (byte)0xff;
+        workRam[activeFileSlot] = (byte)0xff;
     }
 
-    private byte get_active_file_slot()
+    private byte getActiveFileSlot()
     {
-        return m_work_ram[g_active_file_slot];
+        return workRam[activeFileSlot];
     }
 
-    private int get_next_block_id_ptr ( int a_block )
+    private int getNextBlockIdPtr(int a_block )
     {
-        int l_ram_ptr = g_block_start_ptr + g_block_size * a_block;
-        int l_byte_counter = 0;
+        int ramPtr = blockStartPtr + blockSize * a_block;
+        int byteCounter = 0;
 
-        while (l_byte_counter < g_block_size)
+        while (byteCounter < blockSize)
         {
-            if (m_work_ram[l_ram_ptr] == (byte)0xc0)
+            if (workRam[ramPtr] == (byte)0xc0)
             {
-                l_ram_ptr++;
-                l_byte_counter++;
-                if (m_work_ram[l_ram_ptr] != (byte) 0xc0) {
+                ramPtr++;
+                byteCounter++;
+                if (workRam[ramPtr] != (byte) 0xc0) {
                     //rle
-                    l_ram_ptr++;
-                    l_byte_counter++;
+                    ramPtr++;
+                    byteCounter++;
                 }
             }
-            else if ( m_work_ram[l_ram_ptr] == (byte)0xe0 )
+            else if (workRam[ramPtr] == (byte)0xe0)
             {
-                switch ( m_work_ram[l_ram_ptr + 1] )
+                switch (workRam[ramPtr + 1])
                 {
                     case (byte)0xe0:
                     case (byte)0xff:
-                        l_ram_ptr++;
-                        l_byte_counter++;
+                        ramPtr++;
+                        byteCounter++;
                         break;
                     case (byte)0xf0: //wave
                     case (byte)0xf1: //instr
-                        l_ram_ptr += 2;
-                        l_byte_counter += 2;
+                        ramPtr += 2;
+                        byteCounter += 2;
                         break;
                     default:
-                        return l_ram_ptr + 1;
+                        return ramPtr + 1;
                 }
             }
-            l_ram_ptr++;
-            l_byte_counter++;
+            ramPtr++;
+            byteCounter++;
         }
         System.out.println("get_next_block_id_ptr returns 0");
         return 0;
@@ -497,25 +483,25 @@ public class LSDSavFile
 
     public void import_32kb_sav_to_work_ram(String a_file_path)
     {
-        RandomAccessFile m_file;
+        RandomAccessFile file;
         try
         {
-            m_file = new RandomAccessFile(a_file_path, "r");
+            file = new RandomAccessFile(a_file_path, "r");
 
-            int l_bytes_read = m_file.read(m_work_ram, 0, g_bank_size);
+            int bytesRead = file.read(workRam, 0, bankSize);
 
-            if ( l_bytes_read < g_bank_size )
+            if (bytesRead < bankSize)
             {
                 return;
             }
-            m_file.close();
+            file.close();
         }
         catch (Exception e)
         {
             e.printStackTrace();
             return;
         }
-        clear_active_file_slot();
+        clearActiveFileSlot();
     }
     
 }
