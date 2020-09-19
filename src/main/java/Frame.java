@@ -69,7 +69,7 @@ public class Frame extends JFrame implements ListSelectionListener {
 
         saveButton.setEnabled(false);
         saveButton.setText("Save V3+ .SAV as...");
-        saveButton.addActionListener(e -> save());
+        saveButton.addActionListener(e -> saveButton_actionPerformed());
 
         jRamUsageIndicator.setString("");
         jRamUsageIndicator.setStringPainted(true);
@@ -108,21 +108,24 @@ public class Frame extends JFrame implements ListSelectionListener {
         panel.add(clearSlotButton, "cell 1 6 1 1, growx, gaptop 10");
     }
 
-    private void save() {
-        JFileChooser fileChooser = new JFileChooser(latestSavPath);
-        fileChooser.setFileFilter(new SAVFilter());
-        fileChooser.setDialogTitle("Save 128kByte V3+ .sav file");
+    private void saveButton_actionPerformed() {
+        FileDialog fileDialog = new FileDialog(this,
+                "Save 128kByte V3+ .sav file",
+                FileDialog.SAVE);
+        fileDialog.setDirectory(latestSavPath);
+        fileDialog.setFile("*.sav");
+        fileDialog.setVisible(true);
 
-        int retVal = fileChooser.showSaveDialog(null);
-
-        if (JFileChooser.APPROVE_OPTION == retVal) {
-            String fileName = fileChooser.getSelectedFile()
-                    .getAbsoluteFile().toString();
-            if (!fileName.toUpperCase().endsWith(".SAV")) {
-                fileName += ".sav";
-            }
-            file.saveAs(fileName);
+        String fileName = fileDialog.getFile();
+        if (fileName == null) {
+            return;
         }
+
+        fileName = fileDialog.getDirectory() + fileName;
+        if (!fileName.toUpperCase().endsWith(".SAV")) {
+            fileName += ".sav";
+        }
+        file.saveAs(fileName);
     }
 
     public void openSavButton_actionPerformed() {
@@ -194,26 +197,27 @@ public class Frame extends JFrame implements ListSelectionListener {
         
         int[] slots = songList.getSelectedIndices();
 
-        JFileChooser fileChooser = new JFileChooser(latestSngPath);
         if (slots.length == 1) {
-            fileChooser.setFileFilter(new LsdSngFilter());
-            fileChooser.setDialogTitle(
-                    "Export selected slot to compressed .lsdsng file");
-            int ret = fileChooser.showSaveDialog(null);
-
-            if (JFileChooser.APPROVE_OPTION == ret) {
-                latestSngPath = fileChooser.getSelectedFile()
-                        .getAbsoluteFile().getParent();
-                String fileName = fileChooser.getSelectedFile()
-                        .getAbsoluteFile().toString();
-                if (!fileName.toUpperCase().endsWith(".LSDSNG")) {
-                    fileName += ".lsdsng";
-                }
-
-                file.exportSongToFile(slots[0], fileName);
-                savePreferences();
+            FileDialog fileDialog = new FileDialog(this,
+                    "Export selected slot to .lsdsng",
+                    FileDialog.SAVE);
+            fileDialog.setDirectory(latestSngPath);
+            fileDialog.setFile("*.lsdsng");
+            fileDialog.setVisible(true);
+            String fileName = fileDialog.getFile();
+            if (fileName == null) {
+                return;
             }
+
+            latestSngPath = fileDialog.getDirectory();
+            String filePath = latestSngPath + fileName;
+            if (!filePath.toUpperCase().endsWith(".LSDSNG")) {
+                filePath += ".lsdsng";
+            }
+            file.exportSongToFile(slots[0], filePath);
+            savePreferences();
         } else if (slots.length > 1) {
+            JFileChooser fileChooser = new JFileChooser(latestSngPath);
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fileChooser.setDialogTitle(
                     "Batch export selected slots to compressed .lsdsng files");
@@ -266,24 +270,29 @@ public class Frame extends JFrame implements ListSelectionListener {
     }
 
     public void addLsdSngButton_actionPerformed() {
-        JFileChooser fileChooser = new JFileChooser(latestSngPath);
-        fileChooser.setFileFilter(new LsdSngFilter());
-        fileChooser.setMultiSelectionEnabled(true);
-        fileChooser.setDialogTitle("Add compressed .lsdsng to file memory");
+        FileDialog fileDialog = new FileDialog(this,
+                "Add .lsdsng to file memory",
+                FileDialog.LOAD);
+        fileDialog.setDirectory(latestSngPath);
+        fileDialog.setFile("*.lsdsng");
+        fileDialog.setMultipleMode(true);
+        fileDialog.setVisible(true);
 
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog(null)) {
-            boolean success = true;
-            for (File f : fileChooser.getSelectedFiles()) {
-                success &= file.addSongFromFile(
-                        f.getAbsoluteFile().toString());
-                file.populateSlotList(songList);
-            }
-            latestSngPath = fileChooser.getSelectedFiles()[0]
-                    .getAbsoluteFile().getParent();
-            updateRamUsageIndicator();
-            if (success) {
-                savePreferences();
-            }
+        File[] files = fileDialog.getFiles();
+        if (files.length == 0) {
+            return;
+        }
+
+        boolean success = true;
+        for (File f : files) {
+            success &= file.addSongFromFile(f.getAbsoluteFile().toString());
+            file.populateSlotList(songList);
+        }
+        latestSngPath = files[0]
+                .getAbsoluteFile().getParent();
+        updateRamUsageIndicator();
+        if (success) {
+            savePreferences();
         }
     }
 
